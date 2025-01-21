@@ -1,0 +1,279 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Ast.Parser.State</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Ast.Types.html"><span class="hs-identifier">Ast.Types</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">AT</span></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Set</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Set</span></span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="annot"><span class="hs-comment">-- | Represents the state of type definitions in the parser.</span></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">type</span><span> </span><span id="TypeState"><span class="annot"><a href="Ast.Parser.State.html#TypeState"><span class="hs-identifier hs-var">TypeState</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">AT.Type</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span>
+</span><span id="line-8"></span><span>
+</span><span id="line-9"></span><span class="annot"><span class="hs-comment">-- | Represents the state of variable definitions in the parser.</span></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">type</span><span> </span><span id="VarState"><span class="annot"><a href="Ast.Parser.State.html#VarState"><span class="hs-identifier hs-var">VarState</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">AT.Type</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span>
+</span><span id="line-11"></span><span>
+</span><span id="line-12"></span><span class="annot"><span class="hs-comment">-- | Tracks preprocessor-specific information, such as visited imports and import depth.</span></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">data</span><span> </span><span id="PreProcessorState"><span class="annot"><a href="Ast.Parser.State.html#PreProcessorState"><span class="hs-identifier hs-var">PreProcessorState</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="PreProcessorState"><span class="annot"><a href="Ast.Parser.State.html#PreProcessorState"><span class="hs-identifier hs-var">PreProcessorState</span></a></span></span><span>
+</span><span id="line-14"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="visitedImports"><span class="annot"><span class="annottext">PreProcessorState -&gt; Set String
+</span><a href="Ast.Parser.State.html#visitedImports"><span class="hs-identifier hs-var hs-var">visitedImports</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Set.Set</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-15"></span><span>    </span><span id="importDepth"><span class="annot"><span class="annottext">PreProcessorState -&gt; Int
+</span><a href="Ast.Parser.State.html#importDepth"><span class="hs-identifier hs-var hs-var">importDepth</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-16"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-17"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679138100"><span id="local-6989586621679138109"><span id="local-6989586621679138113"><span class="annot"><span class="annottext">Int -&gt; PreProcessorState -&gt; ShowS
+[PreProcessorState] -&gt; ShowS
+PreProcessorState -&gt; String
+(Int -&gt; PreProcessorState -&gt; ShowS)
+-&gt; (PreProcessorState -&gt; String)
+-&gt; ([PreProcessorState] -&gt; ShowS)
+-&gt; Show PreProcessorState
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; PreProcessorState -&gt; ShowS
+showsPrec :: Int -&gt; PreProcessorState -&gt; ShowS
+$cshow :: PreProcessorState -&gt; String
+show :: PreProcessorState -&gt; String
+$cshowList :: [PreProcessorState] -&gt; ShowS
+showList :: [PreProcessorState] -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679138120"><span id="local-6989586621679138126"><span class="annot"><span class="annottext">PreProcessorState -&gt; PreProcessorState -&gt; Bool
+(PreProcessorState -&gt; PreProcessorState -&gt; Bool)
+-&gt; (PreProcessorState -&gt; PreProcessorState -&gt; Bool)
+-&gt; Eq PreProcessorState
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: PreProcessorState -&gt; PreProcessorState -&gt; Bool
+== :: PreProcessorState -&gt; PreProcessorState -&gt; Bool
+$c/= :: PreProcessorState -&gt; PreProcessorState -&gt; Bool
+/= :: PreProcessorState -&gt; PreProcessorState -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span>
+</span><span id="line-19"></span><span class="annot"><span class="hs-comment">-- | Represents the stack of deferred expressions, grouped by scope.</span></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">type</span><span> </span><span id="DeferState"><span class="annot"><a href="Ast.Parser.State.html#DeferState"><span class="hs-identifier hs-var">DeferState</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">[</span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span class="hs-special">]</span><span class="hs-special">]</span><span>
+</span><span id="line-21"></span><span>
+</span><span id="line-22"></span><span class="annot"><span class="hs-comment">-- | The complete state of the parser, including types, variables, preprocessor state, and deferred expressions.</span></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">data</span><span> </span><span id="ParserState"><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-var">ParserState</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="ParserState"><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-var">ParserState</span></a></span></span><span>
+</span><span id="line-24"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="typeState"><span class="annot"><span class="annottext">ParserState -&gt; TypeState
+</span><a href="Ast.Parser.State.html#typeState"><span class="hs-identifier hs-var hs-var">typeState</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#TypeState"><span class="hs-identifier hs-type">TypeState</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-25"></span><span>    </span><span id="varState"><span class="annot"><span class="annottext">ParserState -&gt; TypeState
+</span><a href="Ast.Parser.State.html#varState"><span class="hs-identifier hs-var hs-var">varState</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#VarState"><span class="hs-identifier hs-type">VarState</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-26"></span><span>    </span><span id="preProcessorState"><span class="annot"><span class="annottext">ParserState -&gt; PreProcessorState
+</span><a href="Ast.Parser.State.html#preProcessorState"><span class="hs-identifier hs-var hs-var">preProcessorState</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#PreProcessorState"><span class="hs-identifier hs-type">PreProcessorState</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-27"></span><span>    </span><span id="deferState"><span class="annot"><span class="annottext">ParserState -&gt; DeferState
+</span><a href="Ast.Parser.State.html#deferState"><span class="hs-identifier hs-var hs-var">deferState</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#DeferState"><span class="hs-identifier hs-type">DeferState</span></a></span><span>
+</span><span id="line-28"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-29"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679138136"><span id="local-6989586621679138145"><span id="local-6989586621679138149"><span class="annot"><span class="annottext">Int -&gt; ParserState -&gt; ShowS
+[ParserState] -&gt; ShowS
+ParserState -&gt; String
+(Int -&gt; ParserState -&gt; ShowS)
+-&gt; (ParserState -&gt; String)
+-&gt; ([ParserState] -&gt; ShowS)
+-&gt; Show ParserState
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; ParserState -&gt; ShowS
+showsPrec :: Int -&gt; ParserState -&gt; ShowS
+$cshow :: ParserState -&gt; String
+show :: ParserState -&gt; String
+$cshowList :: [ParserState] -&gt; ShowS
+showList :: [ParserState] -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679138159"><span id="local-6989586621679138167"><span class="annot"><span class="annottext">ParserState -&gt; ParserState -&gt; Bool
+(ParserState -&gt; ParserState -&gt; Bool)
+-&gt; (ParserState -&gt; ParserState -&gt; Bool) -&gt; Eq ParserState
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: ParserState -&gt; ParserState -&gt; Bool
+== :: ParserState -&gt; ParserState -&gt; Bool
+$c/= :: ParserState -&gt; ParserState -&gt; Bool
+/= :: ParserState -&gt; ParserState -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-30"></span><span>
+</span><span id="line-31"></span><span class="annot"><span class="hs-comment">-- | The initial state of the parser.</span></span><span>
+</span><span id="line-32"></span><span class="annot"><a href="Ast.Parser.State.html#parserState"><span class="hs-identifier hs-type">parserState</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span>
+</span><span id="line-33"></span><span id="parserState"><span class="annot"><span class="annottext">parserState :: ParserState
+</span><a href="Ast.Parser.State.html#parserState"><span class="hs-identifier hs-var hs-var">parserState</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TypeState
+-&gt; TypeState -&gt; PreProcessorState -&gt; DeferState -&gt; ParserState
+</span><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-var">ParserState</span></a></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Set String -&gt; Int -&gt; PreProcessorState
+</span><a href="Ast.Parser.State.html#PreProcessorState"><span class="hs-identifier hs-var">PreProcessorState</span></a></span><span> </span><span class="annot"><span class="annottext">Set String
+forall a. Set a
+</span><span class="hs-identifier hs-var">Set.empty</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">0</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><span id="line-34"></span><span>
+</span><span id="line-35"></span><span class="hs-comment">-- | Inserts a custom type into the environment.</span><span>
+</span><span id="line-36"></span><span class="hs-comment">-- If the type already exists, it overwrites it.</span><span>
+</span><span id="line-37"></span><span class="annot"><a href="Ast.Parser.State.html#insertType"><span class="hs-identifier hs-type">insertType</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">AT.Type</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span>
+</span><span id="line-38"></span><span id="insertType"><span class="annot"><span class="annottext">insertType :: String -&gt; Type -&gt; ParserState -&gt; ParserState
+</span><a href="Ast.Parser.State.html#insertType"><span class="hs-identifier hs-var hs-var">insertType</span></a></span></span><span> </span><span id="local-6989586621679138178"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679138178"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span id="local-6989586621679138179"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679138179"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679138180"><span class="annot"><span class="annottext">ParserState
+</span><a href="#local-6989586621679138180"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ParserState
+</span><a href="#local-6989586621679138180"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">typeState :: TypeState
+</span><a href="Ast.Parser.State.html#typeState"><span class="hs-identifier hs-var">typeState</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679138178"><span class="hs-identifier hs-var">name</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679138179"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(String, Type) -&gt; TypeState -&gt; TypeState
+forall a. a -&gt; [a] -&gt; [a]
+</span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">ParserState -&gt; TypeState
+</span><a href="Ast.Parser.State.html#typeState"><span class="hs-identifier hs-var">typeState</span></a></span><span> </span><span class="annot"><span class="annottext">ParserState
+</span><a href="#local-6989586621679138180"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-39"></span><span>
+</span><span id="line-40"></span><span class="annot"><span class="hs-comment">-- | Looks up a custom type in the environment by its name.</span></span><span>
+</span><span id="line-41"></span><span class="annot"><a href="Ast.Parser.State.html#lookupType"><span class="hs-identifier hs-type">lookupType</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">AT.Type</span></a></span><span>
+</span><span id="line-42"></span><span id="lookupType"><span class="annot"><span class="annottext">lookupType :: String -&gt; ParserState -&gt; Maybe Type
+</span><a href="Ast.Parser.State.html#lookupType"><span class="hs-identifier hs-var hs-var">lookupType</span></a></span></span><span> </span><span id="local-6989586621679138182"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679138182"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">typeState :: ParserState -&gt; TypeState
+</span><a href="Ast.Parser.State.html#typeState"><span class="hs-identifier hs-var">typeState</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621679138183"><span class="annot"><span class="annottext">TypeState
+</span><a href="#local-6989586621679138183"><span class="hs-identifier hs-var">types</span></a></span></span><span class="hs-special">}</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; TypeState -&gt; Maybe Type
+forall a b. Eq a =&gt; a -&gt; [(a, b)] -&gt; Maybe b
+</span><span class="hs-identifier hs-var">lookup</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679138182"><span class="hs-identifier hs-var">name</span></a></span><span> </span><span class="annot"><span class="annottext">TypeState
+</span><a href="#local-6989586621679138183"><span class="hs-identifier hs-var">types</span></a></span><span>
+</span><span id="line-43"></span><span>
+</span><span id="line-44"></span><span class="hs-comment">-- | Inserts a variable into the environment.</span><span>
+</span><span id="line-45"></span><span class="hs-comment">-- If the variable already exists, it overwrites it.</span><span>
+</span><span id="line-46"></span><span class="annot"><a href="Ast.Parser.State.html#insertVar"><span class="hs-identifier hs-type">insertVar</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">AT.Type</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span>
+</span><span id="line-47"></span><span id="insertVar"><span class="annot"><span class="annottext">insertVar :: String -&gt; Type -&gt; ParserState -&gt; ParserState
+</span><a href="Ast.Parser.State.html#insertVar"><span class="hs-identifier hs-var hs-var">insertVar</span></a></span></span><span> </span><span id="local-6989586621679138186"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679138186"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span id="local-6989586621679138187"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679138187"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679138188"><span class="annot"><span class="annottext">ParserState
+</span><a href="#local-6989586621679138188"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ParserState
+</span><a href="#local-6989586621679138188"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">varState :: TypeState
+</span><a href="Ast.Parser.State.html#varState"><span class="hs-identifier hs-var">varState</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679138186"><span class="hs-identifier hs-var">name</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679138187"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(String, Type) -&gt; TypeState -&gt; TypeState
+forall a. a -&gt; [a] -&gt; [a]
+</span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">ParserState -&gt; TypeState
+</span><a href="Ast.Parser.State.html#varState"><span class="hs-identifier hs-var">varState</span></a></span><span> </span><span class="annot"><span class="annottext">ParserState
+</span><a href="#local-6989586621679138188"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-48"></span><span>
+</span><span id="line-49"></span><span class="hs-comment">-- | Looks up a variable in the environment by its name.</span><span>
+</span><span id="line-50"></span><span class="hs-comment">-- Returns `Nothing` if the variable is not found.</span><span>
+</span><span id="line-51"></span><span class="annot"><a href="Ast.Parser.State.html#lookupVar"><span class="hs-identifier hs-type">lookupVar</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">AT.Type</span></a></span><span>
+</span><span id="line-52"></span><span id="lookupVar"><span class="annot"><span class="annottext">lookupVar :: String -&gt; ParserState -&gt; Maybe Type
+</span><a href="Ast.Parser.State.html#lookupVar"><span class="hs-identifier hs-var hs-var">lookupVar</span></a></span></span><span> </span><span id="local-6989586621679138190"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679138190"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">varState :: ParserState -&gt; TypeState
+</span><a href="Ast.Parser.State.html#varState"><span class="hs-identifier hs-var">varState</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621679138191"><span class="annot"><span class="annottext">TypeState
+</span><a href="#local-6989586621679138191"><span class="hs-identifier hs-var">vars</span></a></span></span><span class="hs-special">}</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; TypeState -&gt; Maybe Type
+forall a b. Eq a =&gt; a -&gt; [(a, b)] -&gt; Maybe b
+</span><span class="hs-identifier hs-var">lookup</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679138190"><span class="hs-identifier hs-var">name</span></a></span><span> </span><span class="annot"><span class="annottext">TypeState
+</span><a href="#local-6989586621679138191"><span class="hs-identifier hs-var">vars</span></a></span><span>
+</span><span id="line-53"></span><span>
+</span><span id="line-54"></span><span class="annot"><span class="hs-comment">-- | Marks an import as visited by adding it to the set of visited imports.</span></span><span>
+</span><span id="line-55"></span><span class="annot"><a href="Ast.Parser.State.html#insertImport"><span class="hs-identifier hs-type">insertImport</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span>
+</span><span id="line-56"></span><span id="insertImport"><span class="annot"><span class="annottext">insertImport :: String -&gt; ParserState -&gt; ParserState
+</span><a href="Ast.Parser.State.html#insertImport"><span class="hs-identifier hs-var hs-var">insertImport</span></a></span></span><span> </span><span id="local-6989586621679138193"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679138193"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679138194"><span class="annot"><span class="annottext">ParserState
+</span><a href="#local-6989586621679138194"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-57"></span><span>  </span><span class="annot"><span class="annottext">ParserState
+</span><a href="#local-6989586621679138194"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">preProcessorState :: PreProcessorState
+</span><a href="Ast.Parser.State.html#preProcessorState"><span class="hs-identifier hs-var">preProcessorState</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ParserState -&gt; PreProcessorState
+</span><a href="Ast.Parser.State.html#preProcessorState"><span class="hs-identifier hs-var">preProcessorState</span></a></span><span> </span><span class="annot"><span class="annottext">ParserState
+</span><a href="#local-6989586621679138194"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">visitedImports :: Set String
+</span><a href="Ast.Parser.State.html#visitedImports"><span class="hs-identifier hs-var">visitedImports</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Set String -&gt; Set String
+forall a. Ord a =&gt; a -&gt; Set a -&gt; Set a
+</span><span class="hs-identifier hs-var">Set.insert</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679138193"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">(Set String -&gt; Set String) -&gt; Set String -&gt; Set String
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">PreProcessorState -&gt; Set String
+</span><a href="Ast.Parser.State.html#visitedImports"><span class="hs-identifier hs-var">visitedImports</span></a></span><span> </span><span class="annot"><span class="annottext">(PreProcessorState -&gt; Set String)
+-&gt; (ParserState -&gt; PreProcessorState) -&gt; ParserState -&gt; Set String
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ParserState -&gt; PreProcessorState
+</span><a href="Ast.Parser.State.html#preProcessorState"><span class="hs-identifier hs-var">preProcessorState</span></a></span><span> </span><span class="annot"><span class="annottext">(ParserState -&gt; Set String) -&gt; ParserState -&gt; Set String
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">ParserState
+</span><a href="#local-6989586621679138194"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">}</span><span class="hs-special">}</span><span>
+</span><span id="line-58"></span><span>
+</span><span id="line-59"></span><span class="hs-comment">-- | Checks if a file has already been imported.</span><span>
+</span><span id="line-60"></span><span class="hs-comment">-- Returns `True` if the file is in the set of visited imports.</span><span>
+</span><span id="line-61"></span><span class="annot"><a href="Ast.Parser.State.html#lookupImport"><span class="hs-identifier hs-type">lookupImport</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span>
+</span><span id="line-62"></span><span id="lookupImport"><span class="annot"><span class="annottext">lookupImport :: String -&gt; ParserState -&gt; Bool
+</span><a href="Ast.Parser.State.html#lookupImport"><span class="hs-identifier hs-var hs-var">lookupImport</span></a></span></span><span> </span><span id="local-6989586621679138198"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679138198"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">preProcessorState :: ParserState -&gt; PreProcessorState
+</span><a href="Ast.Parser.State.html#preProcessorState"><span class="hs-identifier hs-var">preProcessorState</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#PreProcessorState"><span class="hs-identifier hs-type">PreProcessorState</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">visitedImports :: PreProcessorState -&gt; Set String
+</span><a href="Ast.Parser.State.html#visitedImports"><span class="hs-identifier hs-var">visitedImports</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621679138199"><span class="annot"><span class="annottext">Set String
+</span><a href="#local-6989586621679138199"><span class="hs-identifier hs-var">vi</span></a></span></span><span class="hs-special">}</span><span class="hs-special">}</span><span class="hs-special">)</span><span>
+</span><span id="line-63"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">String -&gt; Set String -&gt; Bool
+forall a. Ord a =&gt; a -&gt; Set a -&gt; Bool
+</span><span class="hs-identifier hs-var">Set.member</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679138198"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Set String
+</span><a href="#local-6989586621679138199"><span class="hs-identifier hs-var">vi</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">True</span></span><span>
+</span><span id="line-64"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">False</span></span><span>
+</span><span id="line-65"></span><span>
+</span><span id="line-66"></span><span class="annot"><span class="hs-comment">-- | Sets the depth of nested imports in the preprocessor state.</span></span><span>
+</span><span id="line-67"></span><span class="annot"><a href="Ast.Parser.State.html#setImportDepth"><span class="hs-identifier hs-type">setImportDepth</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span>
+</span><span id="line-68"></span><span id="setImportDepth"><span class="annot"><span class="annottext">setImportDepth :: Int -&gt; ParserState -&gt; ParserState
+</span><a href="Ast.Parser.State.html#setImportDepth"><span class="hs-identifier hs-var hs-var">setImportDepth</span></a></span></span><span> </span><span id="local-6989586621679138202"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679138202"><span class="hs-identifier hs-var">d</span></a></span></span><span> </span><span id="local-6989586621679138203"><span class="annot"><span class="annottext">ParserState
+</span><a href="#local-6989586621679138203"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ParserState
+</span><a href="#local-6989586621679138203"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">preProcessorState :: PreProcessorState
+</span><a href="Ast.Parser.State.html#preProcessorState"><span class="hs-identifier hs-var">preProcessorState</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ParserState -&gt; PreProcessorState
+</span><a href="Ast.Parser.State.html#preProcessorState"><span class="hs-identifier hs-var">preProcessorState</span></a></span><span> </span><span class="annot"><span class="annottext">ParserState
+</span><a href="#local-6989586621679138203"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">importDepth :: Int
+</span><a href="Ast.Parser.State.html#importDepth"><span class="hs-identifier hs-var">importDepth</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679138202"><span class="hs-identifier hs-var">d</span></a></span><span class="hs-special">}</span><span class="hs-special">}</span><span>
+</span><span id="line-69"></span><span>
+</span><span id="line-70"></span><span class="annot"><span class="hs-comment">-- | Gets the current depth of nested imports from the preprocessor state.</span></span><span>
+</span><span id="line-71"></span><span class="annot"><a href="Ast.Parser.State.html#getImportDepth"><span class="hs-identifier hs-type">getImportDepth</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-72"></span><span id="getImportDepth"><span class="annot"><span class="annottext">getImportDepth :: ParserState -&gt; Int
+</span><a href="Ast.Parser.State.html#getImportDepth"><span class="hs-identifier hs-var hs-var">getImportDepth</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">preProcessorState :: ParserState -&gt; PreProcessorState
+</span><a href="Ast.Parser.State.html#preProcessorState"><span class="hs-identifier hs-var">preProcessorState</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#PreProcessorState"><span class="hs-identifier hs-type">PreProcessorState</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">importDepth :: PreProcessorState -&gt; Int
+</span><a href="Ast.Parser.State.html#importDepth"><span class="hs-identifier hs-var">importDepth</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621679138205"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679138205"><span class="hs-identifier hs-var">d</span></a></span></span><span class="hs-special">}</span><span class="hs-special">}</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679138205"><span class="hs-identifier hs-var">d</span></a></span><span>
+</span><span id="line-73"></span><span>
+</span><span id="line-74"></span><span class="annot"><span class="hs-comment">-- | Pushes a deferred expression onto the current defer stack.</span></span><span>
+</span><span id="line-75"></span><span class="annot"><a href="Ast.Parser.State.html#pushDefered"><span class="hs-identifier hs-type">pushDefered</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span>
+</span><span id="line-76"></span><span id="pushDefered"><span class="annot"><span class="annottext">pushDefered :: Expr -&gt; ParserState -&gt; ParserState
+</span><a href="Ast.Parser.State.html#pushDefered"><span class="hs-identifier hs-var hs-var">pushDefered</span></a></span></span><span> </span><span id="local-6989586621679138207"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138207"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span id="local-6989586621679138208"><span class="annot"><span class="annottext">s :: ParserState
+</span><a href="#local-6989586621679138208"><span class="hs-identifier hs-var">s</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">deferState :: ParserState -&gt; DeferState
+</span><a href="Ast.Parser.State.html#deferState"><span class="hs-identifier hs-var">deferState</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621679138209"><span class="annot"><span class="annottext">DeferState
+</span><a href="#local-6989586621679138209"><span class="hs-identifier hs-var">ds</span></a></span></span><span class="hs-special">}</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">DeferState
+</span><a href="#local-6989586621679138209"><span class="hs-identifier hs-var">ds</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-77"></span><span>  </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">ParserState
+</span><a href="#local-6989586621679138208"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">deferState :: DeferState
+</span><a href="Ast.Parser.State.html#deferState"><span class="hs-identifier hs-var">deferState</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">[</span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138207"><span class="hs-identifier hs-var">e</span></a></span><span class="hs-special">]</span><span class="hs-special">]</span><span class="hs-special">}</span><span>
+</span><span id="line-78"></span><span>  </span><span class="hs-special">(</span><span id="local-6989586621679138210"><span class="annot"><span class="annottext">[Expr]
+</span><a href="#local-6989586621679138210"><span class="hs-identifier hs-var">current</span></a></span></span><span> </span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span> </span><span id="local-6989586621679138211"><span class="annot"><span class="annottext">DeferState
+</span><a href="#local-6989586621679138211"><span class="hs-identifier hs-var">rest</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">ParserState
+</span><a href="#local-6989586621679138208"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">deferState :: DeferState
+</span><a href="Ast.Parser.State.html#deferState"><span class="hs-identifier hs-var">deferState</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138207"><span class="hs-identifier hs-var">e</span></a></span><span> </span><span class="annot"><span class="annottext">Expr -&gt; [Expr] -&gt; [Expr]
+forall a. a -&gt; [a] -&gt; [a]
+</span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">[Expr]
+</span><a href="#local-6989586621679138210"><span class="hs-identifier hs-var">current</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[Expr] -&gt; DeferState -&gt; DeferState
+forall a. a -&gt; [a] -&gt; [a]
+</span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">DeferState
+</span><a href="#local-6989586621679138211"><span class="hs-identifier hs-var">rest</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-79"></span><span>
+</span><span id="line-80"></span><span class="annot"><span class="hs-comment">-- | Pushes a new empty array onto the defer state to represent entering a new scope.</span></span><span>
+</span><span id="line-81"></span><span class="annot"><a href="Ast.Parser.State.html#pushScope"><span class="hs-identifier hs-type">pushScope</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span>
+</span><span id="line-82"></span><span id="pushScope"><span class="annot"><span class="annottext">pushScope :: ParserState -&gt; ParserState
+</span><a href="Ast.Parser.State.html#pushScope"><span class="hs-identifier hs-var hs-var">pushScope</span></a></span></span><span> </span><span id="local-6989586621679138213"><span class="annot"><span class="annottext">s :: ParserState
+</span><a href="#local-6989586621679138213"><span class="hs-identifier hs-var">s</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">deferState :: ParserState -&gt; DeferState
+</span><a href="Ast.Parser.State.html#deferState"><span class="hs-identifier hs-var">deferState</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621679138214"><span class="annot"><span class="annottext">DeferState
+</span><a href="#local-6989586621679138214"><span class="hs-identifier hs-var">ds</span></a></span></span><span class="hs-special">}</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ParserState
+</span><a href="#local-6989586621679138213"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">deferState :: DeferState
+</span><a href="Ast.Parser.State.html#deferState"><span class="hs-identifier hs-var">deferState</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">[Expr] -&gt; DeferState -&gt; DeferState
+forall a. a -&gt; [a] -&gt; [a]
+</span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">DeferState
+</span><a href="#local-6989586621679138214"><span class="hs-identifier hs-var">ds</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-83"></span><span>
+</span><span id="line-84"></span><span class="hs-comment">-- | Pops the top scope expressions stack.</span><span>
+</span><span id="line-85"></span><span class="hs-comment">-- Returns the popped stack and the updated ParserState.</span><span>
+</span><span id="line-86"></span><span class="annot"><a href="Ast.Parser.State.html#popScope"><span class="hs-identifier hs-type">popScope</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="hs-special">[</span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span class="hs-special">]</span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-87"></span><span id="popScope"><span class="annot"><span class="annottext">popScope :: ParserState -&gt; ([Expr], ParserState)
+</span><a href="Ast.Parser.State.html#popScope"><span class="hs-identifier hs-var hs-var">popScope</span></a></span></span><span> </span><span id="local-6989586621679138216"><span class="annot"><span class="annottext">s :: ParserState
+</span><a href="#local-6989586621679138216"><span class="hs-identifier hs-var">s</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">ParserState</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">deferState :: ParserState -&gt; DeferState
+</span><a href="Ast.Parser.State.html#deferState"><span class="hs-identifier hs-var">deferState</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621679138217"><span class="annot"><span class="annottext">DeferState
+</span><a href="#local-6989586621679138217"><span class="hs-identifier hs-var">ds</span></a></span></span><span class="hs-special">}</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-88"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">DeferState
+</span><a href="#local-6989586621679138217"><span class="hs-identifier hs-var">ds</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-89"></span><span>    </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="hs-special">[</span><span class="hs-special">]</span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">ParserState
+</span><a href="#local-6989586621679138216"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-90"></span><span>    </span><span class="hs-special">(</span><span id="local-6989586621679138218"><span class="annot"><span class="annottext">[Expr]
+</span><a href="#local-6989586621679138218"><span class="hs-identifier hs-var">top</span></a></span></span><span> </span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span> </span><span id="local-6989586621679138219"><span class="annot"><span class="annottext">DeferState
+</span><a href="#local-6989586621679138219"><span class="hs-identifier hs-var">rest</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Expr]
+</span><a href="#local-6989586621679138218"><span class="hs-identifier hs-var">top</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">ParserState
+</span><a href="#local-6989586621679138216"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">deferState :: DeferState
+</span><a href="Ast.Parser.State.html#deferState"><span class="hs-identifier hs-var">deferState</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">DeferState
+</span><a href="#local-6989586621679138219"><span class="hs-identifier hs-var">rest</span></a></span><span class="hs-special">}</span><span class="hs-special">)</span><span>
+</span><span id="line-91"></span></pre></body></html>

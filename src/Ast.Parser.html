@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Ast.Parser</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Ast.Parser.Program.html"><span class="hs-identifier">Ast.Parser.Program</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">PP</span></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Ast.Parser.State.html"><span class="hs-identifier">Ast.Parser.State</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">PS</span></span><span>
+</span><span id="line-5"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Ast.Types.html"><span class="hs-identifier">Ast.Types</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">AT</span></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad.State</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">S</span></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.html"><span class="hs-identifier">Text.Megaparsec</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">M</span></span><span>
+</span><span id="line-8"></span><span>
+</span><span id="line-9"></span><span class="hs-comment">-- | Parses a string into an abstract syntax tree (AST).</span><span>
+</span><span id="line-10"></span><span class="hs-comment">-- The `parse` function takes a filename `String`, and an input `String` as a parameter and returns either an AST or an error message.</span><span>
+</span><span id="line-11"></span><span class="annot"><a href="Ast.Parser.html#parse"><span class="hs-identifier hs-type">parse</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="Ast.Types.html#Program"><span class="hs-identifier hs-type">AT.Program</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span id="parse"><span class="annot"><span class="annottext">parse :: String -&gt; String -&gt; IO (Either String Program)
+</span><a href="Ast.Parser.html#parse"><span class="hs-identifier hs-var hs-var">parse</span></a></span></span><span> </span><span id="local-6989586621679143910"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679143910"><span class="hs-identifier hs-var">sourceFile</span></a></span></span><span> </span><span id="local-6989586621679143911"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679143911"><span class="hs-identifier hs-var">input</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-13"></span><span>  </span><span class="hs-special">(</span><span id="local-6989586621679143912"><span class="annot"><span class="annottext">Either (ParseErrorBundle String ParseErrorCustom) Program
+</span><a href="#local-6989586621679143912"><span class="hs-identifier hs-var">result</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">ParserState
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">StateT
+  ParserState
+  IO
+  (Either (ParseErrorBundle String ParseErrorCustom) Program)
+-&gt; ParserState
+-&gt; IO
+     (Either (ParseErrorBundle String ParseErrorCustom) Program,
+      ParserState)
+forall s (m :: * -&gt; *) a. StateT s m a -&gt; s -&gt; m (a, s)
+</span><span class="hs-identifier hs-var">S.runStateT</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) Program
+-&gt; String
+-&gt; String
+-&gt; StateT
+     ParserState
+     IO
+     (Either (ParseErrorBundle String ParseErrorCustom) Program)
+forall (m :: * -&gt; *) e s a.
+Monad m =&gt;
+ParsecT e s m a
+-&gt; String -&gt; s -&gt; m (Either (ParseErrorBundle s e) a)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.html#runParserT"><span class="hs-identifier hs-var">M.runParserT</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) Program
+</span><a href="Ast.Parser.Program.html#parseProgram"><span class="hs-identifier hs-var">PP.parseProgram</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679143910"><span class="hs-identifier hs-var">sourceFile</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679143910"><span class="hs-identifier hs-var">sourceFile</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679143911"><span class="hs-identifier hs-var">input</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ParserState
+</span><a href="Ast.Parser.State.html#parserState"><span class="hs-identifier hs-var">PS.parserState</span></a></span><span>
+</span><span id="line-14"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Either (ParseErrorBundle String ParseErrorCustom) Program
+</span><a href="#local-6989586621679143912"><span class="hs-identifier hs-var">result</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-15"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679143917"><span class="annot"><span class="annottext">ParseErrorBundle String ParseErrorCustom
+</span><a href="#local-6989586621679143917"><span class="hs-identifier hs-var">err</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Either String Program -&gt; IO (Either String Program)
+forall a. a -&gt; IO a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">(Either String Program -&gt; IO (Either String Program))
+-&gt; Either String Program -&gt; IO (Either String Program)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Either String Program
+forall a b. a -&gt; Either a b
+</span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ParseErrorBundle String ParseErrorCustom -&gt; String
+forall s e.
+(VisualStream s, TraversableStream s, ShowErrorComponent e) =&gt;
+ParseErrorBundle s e -&gt; String
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Error.html#errorBundlePretty"><span class="hs-identifier hs-var">M.errorBundlePretty</span></a></span><span> </span><span class="annot"><span class="annottext">ParseErrorBundle String ParseErrorCustom
+</span><a href="#local-6989586621679143917"><span class="hs-identifier hs-var">err</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-16"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679143919"><span class="annot"><span class="annottext">Program
+</span><a href="#local-6989586621679143919"><span class="hs-identifier hs-var">program</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Either String Program -&gt; IO (Either String Program)
+forall a. a -&gt; IO a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">(Either String Program -&gt; IO (Either String Program))
+-&gt; Either String Program -&gt; IO (Either String Program)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Program -&gt; Either String Program
+forall a b. b -&gt; Either a b
+</span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="annot"><span class="annottext">Program
+</span><a href="#local-6989586621679143919"><span class="hs-identifier hs-var">program</span></a></span><span>
+</span><span id="line-17"></span></pre></body></html>

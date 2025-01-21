@@ -1,0 +1,248 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Ast.Parser.TypeDefinition</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Ast.Parser.State.html"><span class="hs-identifier">Ast.Parser.State</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">PS</span></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Ast.Parser.Type.html"><span class="hs-identifier">Ast.Parser.Type</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">T</span></span><span>
+</span><span id="line-5"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html"><span class="hs-identifier">Ast.Parser.Utils</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">PU</span></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Ast.Types.html"><span class="hs-identifier">Ast.Types</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">AT</span></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad.State</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">S</span></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.html"><span class="hs-identifier">Text.Megaparsec</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">M</span></span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span class="hs-comment">-- | Parse a type definition. This function combines multiple specific type</span><span>
+</span><span id="line-11"></span><span class="hs-comment">-- definition.</span><span>
+</span><span id="line-12"></span><span class="hs-comment">-- It tries to match typedefs, structs, and unions.</span><span>
+</span><span id="line-13"></span><span class="annot"><a href="Ast.Parser.TypeDefinition.html#parseTypeDefinition"><span class="hs-identifier hs-type">parseTypeDefinition</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">PU.Parser</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">AT.Type</span></a></span><span>
+</span><span id="line-14"></span><span id="parseTypeDefinition"><span class="annot"><span class="annottext">parseTypeDefinition :: Parser Type
+</span><a href="Ast.Parser.TypeDefinition.html#parseTypeDefinition"><span class="hs-identifier hs-var hs-var">parseTypeDefinition</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-15"></span><span>  </span><span class="annot"><span class="annottext">[Parser Type] -&gt; Parser Type
+forall (f :: * -&gt; *) (m :: * -&gt; *) a.
+(Foldable f, Alternative m) =&gt;
+f (m a) -&gt; m a
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Applicative.Combinators.html#choice"><span class="hs-identifier hs-var">M.choice</span></a></span><span>
+</span><span id="line-16"></span><span>    </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Parser Type -&gt; Parser Type
+forall a.
+ParsecT ParseErrorCustom String (StateT ParserState IO) a
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) a
+forall e s (m :: * -&gt; *) a. MonadParsec e s m =&gt; m a -&gt; m a
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Class.html#try"><span class="hs-identifier hs-var">M.try</span></a></span><span> </span><span class="annot"><span class="annottext">Parser Type
+</span><a href="Ast.Parser.TypeDefinition.html#structType"><span class="hs-identifier hs-var">structType</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-17"></span><span>      </span><span class="annot"><span class="annottext">Parser Type -&gt; Parser Type
+forall a.
+ParsecT ParseErrorCustom String (StateT ParserState IO) a
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) a
+forall e s (m :: * -&gt; *) a. MonadParsec e s m =&gt; m a -&gt; m a
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Class.html#try"><span class="hs-identifier hs-var">M.try</span></a></span><span> </span><span class="annot"><span class="annottext">Parser Type
+</span><a href="Ast.Parser.TypeDefinition.html#unionType"><span class="hs-identifier hs-var">unionType</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-18"></span><span>      </span><span class="annot"><span class="annottext">Parser Type
+</span><a href="Ast.Parser.TypeDefinition.html#typedefType"><span class="hs-identifier hs-var">typedefType</span></a></span><span>
+</span><span id="line-19"></span><span>    </span><span class="hs-special">]</span><span>
+</span><span id="line-20"></span><span>
+</span><span id="line-21"></span><span class="hs-comment">-- | Parses a struct type definition.</span><span>
+</span><span id="line-22"></span><span class="hs-comment">-- A struct is defined with the &quot;struct&quot; keyword followed by an optional name and a list of fields enclosed in braces.</span><span>
+</span><span id="line-23"></span><span class="hs-comment">-- Example: &quot;struct { x -&gt; int, y -&gt; float }&quot;.</span><span>
+</span><span id="line-24"></span><span class="annot"><a href="Ast.Parser.TypeDefinition.html#structType"><span class="hs-identifier hs-type">structType</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">PU.Parser</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">AT.Type</span></a></span><span>
+</span><span id="line-25"></span><span id="structType"><span class="annot"><span class="annottext">structType :: Parser Type
+</span><a href="Ast.Parser.TypeDefinition.html#structType"><span class="hs-identifier hs-var hs-var">structType</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-26"></span><span>  </span><span id="local-6989586621679139149"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679139149"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Parser String
+</span><a href="Ast.Parser.Utils.html#identifier"><span class="hs-identifier hs-var">PU.identifier</span></a></span><span>
+</span><span id="line-27"></span><span>  </span><span class="annot"><span class="annottext">String
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; Parser String
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">PU.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;::&quot;</span></span><span> </span><span class="annot"><span class="annottext">Parser String -&gt; Parser String -&gt; Parser String
+forall a b.
+ParsecT ParseErrorCustom String (StateT ParserState IO) a
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) a
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f a -&gt; f b -&gt; f a
+</span><span class="hs-operator hs-var">&lt;*</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Parser String
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">PU.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;struct&quot;</span></span><span>
+</span><span id="line-28"></span><span>  </span><span id="local-6989586621679139153"><span class="annot"><span class="annottext">[(String, Type)]
+</span><a href="#local-6989586621679139153"><span class="hs-identifier hs-var">fields</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Parser String
+-&gt; Parser String
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) [(String, Type)]
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) [(String, Type)]
+forall (m :: * -&gt; *) open close a.
+Applicative m =&gt;
+m open -&gt; m close -&gt; m a -&gt; m a
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Applicative.Combinators.html#between"><span class="hs-identifier hs-var">M.between</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Parser String
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">PU.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;{&quot;</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Parser String
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">PU.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;}&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(ParsecT
+   ParseErrorCustom String (StateT ParserState IO) [(String, Type)]
+ -&gt; ParsecT
+      ParseErrorCustom String (StateT ParserState IO) [(String, Type)])
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) [(String, Type)]
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) [(String, Type)]
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">ParsecT
+  ParseErrorCustom String (StateT ParserState IO) (String, Type)
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) [(String, Type)]
+forall (m :: * -&gt; *) a. MonadPlus m =&gt; m a -&gt; m [a]
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Monad.Combinators.html#many"><span class="hs-identifier hs-var">M.many</span></a></span><span> </span><span class="annot"><span class="annottext">ParsecT
+  ParseErrorCustom String (StateT ParserState IO) (String, Type)
+</span><a href="Ast.Parser.TypeDefinition.html#parseField"><span class="hs-identifier hs-var">parseField</span></a></span><span>
+</span><span id="line-29"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679139157"><span class="annot"><span class="annottext">newStructType :: Type
+</span><a href="#local-6989586621679139157"><span class="hs-identifier hs-var hs-var">newStructType</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Ast.Types.html#TStruct"><span class="hs-identifier hs-type">AT.TStruct</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">structName :: String
+</span><a href="Ast.Types.html#structName"><span class="hs-identifier hs-var">AT.structName</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679139149"><span class="hs-identifier hs-var">name</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">fields :: [(String, Type)]
+</span><a href="Ast.Types.html#fields"><span class="hs-identifier hs-var">AT.fields</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[(String, Type)]
+</span><a href="#local-6989586621679139153"><span class="hs-identifier hs-var">fields</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-30"></span><span>  </span><span class="annot"><span class="annottext">(ParserState -&gt; ParserState)
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) ()
+forall s (m :: * -&gt; *). MonadState s m =&gt; (s -&gt; s) -&gt; m ()
+</span><span class="hs-identifier hs-var">S.modify</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Type -&gt; ParserState -&gt; ParserState
+</span><a href="Ast.Parser.State.html#insertType"><span class="hs-identifier hs-var">PS.insertType</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679139149"><span class="hs-identifier hs-var">name</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679139157"><span class="hs-identifier hs-var">newStructType</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-31"></span><span>  </span><span class="annot"><span class="annottext">Type -&gt; Parser Type
+forall a.
+a -&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679139157"><span class="hs-identifier hs-var">newStructType</span></a></span><span>
+</span><span id="line-32"></span><span>
+</span><span id="line-33"></span><span class="hs-comment">-- | Parses a union type definition.</span><span>
+</span><span id="line-34"></span><span class="hs-comment">-- A union is defined with the &quot;union&quot; keyword followed by an optional name and a list of variants enclosed in braces.</span><span>
+</span><span id="line-35"></span><span class="hs-comment">-- Example: &quot;union { data -&gt; *char, error -&gt; int }&quot;.</span><span>
+</span><span id="line-36"></span><span class="annot"><a href="Ast.Parser.TypeDefinition.html#unionType"><span class="hs-identifier hs-type">unionType</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">PU.Parser</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">AT.Type</span></a></span><span>
+</span><span id="line-37"></span><span id="unionType"><span class="annot"><span class="annottext">unionType :: Parser Type
+</span><a href="Ast.Parser.TypeDefinition.html#unionType"><span class="hs-identifier hs-var hs-var">unionType</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-38"></span><span>  </span><span id="local-6989586621679139163"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679139163"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Parser String
+</span><a href="Ast.Parser.Utils.html#identifier"><span class="hs-identifier hs-var">PU.identifier</span></a></span><span>
+</span><span id="line-39"></span><span>  </span><span class="annot"><span class="annottext">String
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; Parser String
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">PU.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;::&quot;</span></span><span> </span><span class="annot"><span class="annottext">Parser String -&gt; Parser String -&gt; Parser String
+forall a b.
+ParsecT ParseErrorCustom String (StateT ParserState IO) a
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) a
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f a -&gt; f b -&gt; f a
+</span><span class="hs-operator hs-var">&lt;*</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Parser String
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">PU.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;union&quot;</span></span><span>
+</span><span id="line-40"></span><span>  </span><span id="local-6989586621679139164"><span class="annot"><span class="annottext">[(String, Type)]
+</span><a href="#local-6989586621679139164"><span class="hs-identifier hs-var">variants</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Parser String
+-&gt; Parser String
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) [(String, Type)]
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) [(String, Type)]
+forall (m :: * -&gt; *) open close a.
+Applicative m =&gt;
+m open -&gt; m close -&gt; m a -&gt; m a
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Applicative.Combinators.html#between"><span class="hs-identifier hs-var">M.between</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Parser String
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">PU.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;{&quot;</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Parser String
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">PU.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;}&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(ParsecT
+   ParseErrorCustom String (StateT ParserState IO) [(String, Type)]
+ -&gt; ParsecT
+      ParseErrorCustom String (StateT ParserState IO) [(String, Type)])
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) [(String, Type)]
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) [(String, Type)]
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">ParsecT
+  ParseErrorCustom String (StateT ParserState IO) (String, Type)
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) [(String, Type)]
+forall (m :: * -&gt; *) a. MonadPlus m =&gt; m a -&gt; m [a]
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Monad.Combinators.html#many"><span class="hs-identifier hs-var">M.many</span></a></span><span> </span><span class="annot"><span class="annottext">ParsecT
+  ParseErrorCustom String (StateT ParserState IO) (String, Type)
+</span><a href="Ast.Parser.TypeDefinition.html#parseField"><span class="hs-identifier hs-var">parseField</span></a></span><span>
+</span><span id="line-41"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679139165"><span class="annot"><span class="annottext">newUnionType :: Type
+</span><a href="#local-6989586621679139165"><span class="hs-identifier hs-var hs-var">newUnionType</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Ast.Types.html#TUnion"><span class="hs-identifier hs-type">AT.TUnion</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">unionName :: String
+</span><a href="Ast.Types.html#unionName"><span class="hs-identifier hs-var">AT.unionName</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679139163"><span class="hs-identifier hs-var">name</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">variants :: [(String, Type)]
+</span><a href="Ast.Types.html#variants"><span class="hs-identifier hs-var">AT.variants</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[(String, Type)]
+</span><a href="#local-6989586621679139164"><span class="hs-identifier hs-var">variants</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-42"></span><span>  </span><span class="annot"><span class="annottext">(ParserState -&gt; ParserState)
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) ()
+forall s (m :: * -&gt; *). MonadState s m =&gt; (s -&gt; s) -&gt; m ()
+</span><span class="hs-identifier hs-var">S.modify</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Type -&gt; ParserState -&gt; ParserState
+</span><a href="Ast.Parser.State.html#insertType"><span class="hs-identifier hs-var">PS.insertType</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679139163"><span class="hs-identifier hs-var">name</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679139165"><span class="hs-identifier hs-var">newUnionType</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-43"></span><span>  </span><span class="annot"><span class="annottext">Type -&gt; Parser Type
+forall a.
+a -&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679139165"><span class="hs-identifier hs-var">newUnionType</span></a></span><span>
+</span><span id="line-44"></span><span>
+</span><span id="line-45"></span><span class="hs-comment">-- | Parses a typedef.</span><span>
+</span><span id="line-46"></span><span class="hs-comment">-- A typedef associates a new name with an existing type using the &quot;::&quot; syntax.</span><span>
+</span><span id="line-47"></span><span class="hs-comment">-- Example: &quot;Vector2i :: Vector&quot;.</span><span>
+</span><span id="line-48"></span><span class="annot"><a href="Ast.Parser.TypeDefinition.html#typedefType"><span class="hs-identifier hs-type">typedefType</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">PU.Parser</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">AT.Type</span></a></span><span>
+</span><span id="line-49"></span><span id="typedefType"><span class="annot"><span class="annottext">typedefType :: Parser Type
+</span><a href="Ast.Parser.TypeDefinition.html#typedefType"><span class="hs-identifier hs-var hs-var">typedefType</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-50"></span><span>  </span><span id="local-6989586621679139169"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679139169"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Parser String
+</span><a href="Ast.Parser.Utils.html#identifier"><span class="hs-identifier hs-var">PU.identifier</span></a></span><span>
+</span><span id="line-51"></span><span>  </span><span class="annot"><span class="annottext">String
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; Parser String
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">PU.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;::&quot;</span></span><span>
+</span><span id="line-52"></span><span>  </span><span id="local-6989586621679139170"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679139170"><span class="hs-identifier hs-var">parentType</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Parser Type
+</span><a href="Ast.Parser.Type.html#parseType"><span class="hs-identifier hs-var">T.parseType</span></a></span><span>
+</span><span id="line-53"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679139172"><span class="annot"><span class="annottext">typedef :: Type
+</span><a href="#local-6989586621679139172"><span class="hs-identifier hs-var hs-var">typedef</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Type -&gt; Type
+</span><a href="Ast.Types.html#TTypedef"><span class="hs-identifier hs-var">AT.TTypedef</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679139169"><span class="hs-identifier hs-var">name</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679139170"><span class="hs-identifier hs-var">parentType</span></a></span><span>
+</span><span id="line-54"></span><span>  </span><span class="annot"><span class="annottext">(ParserState -&gt; ParserState)
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) ()
+forall s (m :: * -&gt; *). MonadState s m =&gt; (s -&gt; s) -&gt; m ()
+</span><span class="hs-identifier hs-var">S.modify</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Type -&gt; ParserState -&gt; ParserState
+</span><a href="Ast.Parser.State.html#insertType"><span class="hs-identifier hs-var">PS.insertType</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679139169"><span class="hs-identifier hs-var">name</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679139172"><span class="hs-identifier hs-var">typedef</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-55"></span><span>  </span><span class="annot"><span class="annottext">Type -&gt; Parser Type
+forall a.
+a -&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679139172"><span class="hs-identifier hs-var">typedef</span></a></span><span>
+</span><span id="line-56"></span><span>
+</span><span id="line-57"></span><span class="hs-comment">-- | Parses a single field within a struct or union.</span><span>
+</span><span id="line-58"></span><span class="hs-comment">-- Each field consists of a name followed by &quot;-&gt;&quot; and its type.</span><span>
+</span><span id="line-59"></span><span class="hs-comment">-- Example: &quot;x -&gt; int&quot;.</span><span>
+</span><span id="line-60"></span><span class="annot"><a href="Ast.Parser.TypeDefinition.html#parseField"><span class="hs-identifier hs-type">parseField</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">PU.Parser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">AT.Type</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-61"></span><span id="parseField"><span class="annot"><span class="annottext">parseField :: ParsecT
+  ParseErrorCustom String (StateT ParserState IO) (String, Type)
+</span><a href="Ast.Parser.TypeDefinition.html#parseField"><span class="hs-identifier hs-var hs-var">parseField</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-62"></span><span>  </span><span id="local-6989586621679139174"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679139174"><span class="hs-identifier hs-var">fieldName</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Parser String -&gt; Parser String
+forall a.
+ParsecT ParseErrorCustom String (StateT ParserState IO) a
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) a
+</span><a href="Ast.Parser.Utils.html#lexeme"><span class="hs-identifier hs-var">PU.lexeme</span></a></span><span> </span><span class="annot"><span class="annottext">Parser String
+</span><a href="Ast.Parser.Utils.html#identifier"><span class="hs-identifier hs-var">PU.identifier</span></a></span><span>
+</span><span id="line-63"></span><span>  </span><span class="annot"><span class="annottext">String
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; Parser String
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">PU.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;-&gt;&quot;</span></span><span>
+</span><span id="line-64"></span><span>  </span><span id="local-6989586621679139176"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679139176"><span class="hs-identifier hs-var">fieldType</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Parser Type
+</span><a href="Ast.Parser.Type.html#parseType"><span class="hs-identifier hs-var">T.parseType</span></a></span><span>
+</span><span id="line-65"></span><span>  </span><span class="annot"><span class="annottext">(String, Type)
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) (String, Type)
+forall a.
+a -&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679139174"><span class="hs-identifier hs-var">fieldName</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679139176"><span class="hs-identifier hs-var">fieldType</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-66"></span></pre></body></html>

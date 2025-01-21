@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE FlexibleContexts #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE InstanceSigs #-}</span><span>
+</span><span id="line-3"></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Codegen.ExprGen.Types</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Ast.Types.html"><span class="hs-identifier">Ast.Types</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">AT</span></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html"><span class="hs-identifier">LLVM.AST.Type</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">T</span></span><span>
+</span><span id="line-8"></span><span>
+</span><span id="line-9"></span><span class="annot"><span class="hs-comment">-- | Type conversion to LLVM IR.</span></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">class</span><span> </span><span id="ToLLVM"><span class="annot"><a href="Codegen.ExprGen.Types.html#ToLLVM"><span class="hs-identifier hs-var">ToLLVM</span></a></span></span><span> </span><span id="local-6989586621679140136"><span class="annot"><a href="#local-6989586621679140136"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-11"></span><span>  </span><span id="toLLVM"><span class="annot"><a href="Codegen.ExprGen.Types.html#toLLVM"><span class="hs-identifier hs-type">toLLVM</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679140136"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#Type"><span class="hs-identifier hs-type">T.Type</span></a></span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Codegen.ExprGen.Types.html#ToLLVM"><span class="hs-identifier hs-type">ToLLVM</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">AT.Type</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-14"></span><span>  </span><span class="annot"><a href="Codegen.ExprGen.Types.html#toLLVM"><span class="hs-identifier hs-type">toLLVM</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">AT.Type</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#Type"><span class="hs-identifier hs-type">T.Type</span></a></span><span>
+</span><span id="line-15"></span><span>  </span><span id="local-6989586621679140169"><span class="annot"><span class="annottext">toLLVM :: Type -&gt; Type
+</span><a href="Codegen.ExprGen.Types.html#toLLVM"><span class="hs-identifier hs-var hs-var hs-var hs-var">toLLVM</span></a></span></span><span> </span><span id="local-6989586621679140170"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679140170"><span class="hs-identifier hs-var">expr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679140170"><span class="hs-identifier hs-var">expr</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-16"></span><span>    </span><span class="annot"><a href="Ast.Types.html#TInt"><span class="hs-identifier hs-type">AT.TInt</span></a></span><span> </span><span id="local-6989586621679140172"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679140172"><span class="hs-identifier hs-var">width</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Type
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#IntegerType"><span class="hs-identifier hs-var">T.IntegerType</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; Word32
+forall a b. (Integral a, Num b) =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">fromIntegral</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679140172"><span class="hs-identifier hs-var">width</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-17"></span><span>    </span><span class="annot"><span class="annottext">Type
+</span><a href="Ast.Types.html#TFloat"><span class="hs-identifier hs-var">AT.TFloat</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">FloatingPointType -&gt; Type
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#FloatingPointType"><span class="hs-identifier hs-var">T.FloatingPointType</span></a></span><span> </span><span class="annot"><span class="annottext">FloatingPointType
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#FloatFP"><span class="hs-identifier hs-var">T.FloatFP</span></a></span><span>
+</span><span id="line-18"></span><span>    </span><span class="annot"><span class="annottext">Type
+</span><a href="Ast.Types.html#TDouble"><span class="hs-identifier hs-var">AT.TDouble</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">FloatingPointType -&gt; Type
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#FloatingPointType"><span class="hs-identifier hs-var">T.FloatingPointType</span></a></span><span> </span><span class="annot"><span class="annottext">FloatingPointType
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#DoubleFP"><span class="hs-identifier hs-var">T.DoubleFP</span></a></span><span>
+</span><span id="line-19"></span><span>    </span><span class="annot"><span class="annottext">Type
+</span><a href="Ast.Types.html#TChar"><span class="hs-identifier hs-var">AT.TChar</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Type
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#IntegerType"><span class="hs-identifier hs-var">T.IntegerType</span></a></span><span> </span><span class="annot"><span class="annottext">Word32
+</span><span class="hs-number">8</span></span><span>
+</span><span id="line-20"></span><span>    </span><span class="annot"><span class="annottext">Type
+</span><a href="Ast.Types.html#TBoolean"><span class="hs-identifier hs-var">AT.TBoolean</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Type
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#IntegerType"><span class="hs-identifier hs-var">T.IntegerType</span></a></span><span> </span><span class="annot"><span class="annottext">Word32
+</span><span class="hs-number">1</span></span><span>
+</span><span id="line-21"></span><span>    </span><span class="annot"><span class="annottext">Type
+</span><a href="Ast.Types.html#TVoid"><span class="hs-identifier hs-var">AT.TVoid</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#void"><span class="hs-identifier hs-var">T.void</span></a></span><span>
+</span><span id="line-22"></span><span>    </span><span class="annot"><a href="Ast.Types.html#TPointer"><span class="hs-identifier hs-type">AT.TPointer</span></a></span><span> </span><span id="local-6989586621679140184"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679140184"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Type -&gt; Type
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#ptr"><span class="hs-identifier hs-var">T.ptr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Type -&gt; Type
+forall a. ToLLVM a =&gt; a -&gt; Type
+</span><a href="Codegen.ExprGen.Types.html#toLLVM"><span class="hs-identifier hs-var">toLLVM</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679140184"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-23"></span><span>    </span><span class="annot"><a href="Ast.Types.html#TArray"><span class="hs-identifier hs-type">AT.TArray</span></a></span><span> </span><span id="local-6989586621679140187"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679140187"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679140188"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679140188"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Type -&gt; Type
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#ArrayType"><span class="hs-identifier hs-var">T.ArrayType</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; Word64
+forall a b. (Integral a, Num b) =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">fromIntegral</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679140188"><span class="hs-identifier hs-var">n</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Type -&gt; Type
+forall a. ToLLVM a =&gt; a -&gt; Type
+</span><a href="Codegen.ExprGen.Types.html#toLLVM"><span class="hs-identifier hs-var">toLLVM</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679140187"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-24"></span><span>    </span><span class="annot"><a href="Ast.Types.html#TArray"><span class="hs-identifier hs-type">AT.TArray</span></a></span><span> </span><span id="local-6989586621679140190"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679140190"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="annot"><span class="annottext">Maybe Int
+</span><span class="hs-identifier hs-var">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Type -&gt; Type
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#ptr"><span class="hs-identifier hs-var">T.ptr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Type -&gt; Type
+forall a. ToLLVM a =&gt; a -&gt; Type
+</span><a href="Codegen.ExprGen.Types.html#toLLVM"><span class="hs-identifier hs-var">toLLVM</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679140190"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-25"></span><span>    </span><span class="annot"><a href="Ast.Types.html#TFunction"><span class="hs-identifier hs-type">AT.TFunction</span></a></span><span> </span><span id="local-6989586621679140192"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679140192"><span class="hs-identifier hs-var">ret</span></a></span></span><span> </span><span id="local-6989586621679140193"><span class="annot"><span class="annottext">[Type]
+</span><a href="#local-6989586621679140193"><span class="hs-identifier hs-var">params</span></a></span></span><span> </span><span id="local-6989586621679140194"><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679140194"><span class="hs-identifier hs-var">var</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Type -&gt; [Type] -&gt; Bool -&gt; Type
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#FunctionType"><span class="hs-identifier hs-var">T.FunctionType</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Type -&gt; Type
+forall a. ToLLVM a =&gt; a -&gt; Type
+</span><a href="Codegen.ExprGen.Types.html#toLLVM"><span class="hs-identifier hs-var">toLLVM</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679140192"><span class="hs-identifier hs-var">ret</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Type -&gt; Type) -&gt; [Type] -&gt; [Type]
+forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
+</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="annot"><span class="annottext">Type -&gt; Type
+forall a. ToLLVM a =&gt; a -&gt; Type
+</span><a href="Codegen.ExprGen.Types.html#toLLVM"><span class="hs-identifier hs-var">toLLVM</span></a></span><span> </span><span class="annot"><span class="annottext">[Type]
+</span><a href="#local-6989586621679140193"><span class="hs-identifier hs-var">params</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679140194"><span class="hs-identifier hs-var">var</span></a></span><span>
+</span><span id="line-26"></span><span>    </span><span class="annot"><a href="Ast.Types.html#TStruct"><span class="hs-identifier hs-type">AT.TStruct</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679140197"><span class="annot"><span class="annottext">[(String, Type)]
+</span><a href="#local-6989586621679140197"><span class="hs-identifier hs-var">fields</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; [Type] -&gt; Type
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#StructureType"><span class="hs-identifier hs-var">T.StructureType</span></a></span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">False</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">((String, Type) -&gt; Type) -&gt; [(String, Type)] -&gt; [Type]
+forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
+</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Type -&gt; Type
+forall a. ToLLVM a =&gt; a -&gt; Type
+</span><a href="Codegen.ExprGen.Types.html#toLLVM"><span class="hs-identifier hs-var">toLLVM</span></a></span><span> </span><span class="annot"><span class="annottext">(Type -&gt; Type)
+-&gt; ((String, Type) -&gt; Type) -&gt; (String, Type) -&gt; Type
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(String, Type) -&gt; Type
+forall a b. (a, b) -&gt; b
+</span><span class="hs-identifier hs-var">snd</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[(String, Type)]
+</span><a href="#local-6989586621679140197"><span class="hs-identifier hs-var">fields</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-27"></span><span>    </span><span class="annot"><a href="Ast.Types.html#TUnion"><span class="hs-identifier hs-type">AT.TUnion</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679140202"><span class="annot"><span class="annottext">[(String, Type)]
+</span><a href="#local-6989586621679140202"><span class="hs-identifier hs-var">variants</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; [Type] -&gt; Type
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#StructureType"><span class="hs-identifier hs-var">T.StructureType</span></a></span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">False</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">((String, Type) -&gt; Type) -&gt; [(String, Type)] -&gt; [Type]
+forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
+</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Type -&gt; Type
+forall a. ToLLVM a =&gt; a -&gt; Type
+</span><a href="Codegen.ExprGen.Types.html#toLLVM"><span class="hs-identifier hs-var">toLLVM</span></a></span><span> </span><span class="annot"><span class="annottext">(Type -&gt; Type)
+-&gt; ((String, Type) -&gt; Type) -&gt; (String, Type) -&gt; Type
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(String, Type) -&gt; Type
+forall a b. (a, b) -&gt; b
+</span><span class="hs-identifier hs-var">snd</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[(String, Type)]
+</span><a href="#local-6989586621679140202"><span class="hs-identifier hs-var">variants</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-28"></span><span>    </span><span class="annot"><a href="Ast.Types.html#TTypedef"><span class="hs-identifier hs-type">AT.TTypedef</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679140204"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679140204"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Type -&gt; Type
+forall a. ToLLVM a =&gt; a -&gt; Type
+</span><a href="Codegen.ExprGen.Types.html#toLLVM"><span class="hs-identifier hs-var">toLLVM</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679140204"><span class="hs-identifier hs-var">t</span></a></span><span>
+</span><span id="line-29"></span><span>    </span><span class="annot"><a href="Ast.Types.html#TMutable"><span class="hs-identifier hs-type">AT.TMutable</span></a></span><span> </span><span id="local-6989586621679140206"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679140206"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Type -&gt; Type
+forall a. ToLLVM a =&gt; a -&gt; Type
+</span><a href="Codegen.ExprGen.Types.html#toLLVM"><span class="hs-identifier hs-var">toLLVM</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679140206"><span class="hs-identifier hs-var">t</span></a></span><span>
+</span><span id="line-30"></span><span>    </span><span class="annot"><span class="annottext">Type
+</span><a href="Ast.Types.html#TUnknown"><span class="hs-identifier hs-var">AT.TUnknown</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#void"><span class="hs-identifier hs-var">T.void</span></a></span><span>
+</span><span id="line-31"></span></pre></body></html>

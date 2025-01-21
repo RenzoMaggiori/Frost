@@ -1,0 +1,801 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Ast.Types</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="annot"><span class="hs-comment">-- | Source location for better error reporting</span></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">data</span><span> </span><span id="SrcLoc"><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-var">SrcLoc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="SrcLoc"><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-var">SrcLoc</span></a></span></span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="srcFile"><span class="annot"><span class="annottext">SrcLoc -&gt; String
+</span><a href="Ast.Types.html#srcFile"><span class="hs-identifier hs-var hs-var">srcFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-6"></span><span>    </span><span id="srcLine"><span class="annot"><span class="annottext">SrcLoc -&gt; Int
+</span><a href="Ast.Types.html#srcLine"><span class="hs-identifier hs-var hs-var">srcLine</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span>
+</span><span id="line-7"></span><span>    </span><span id="srcCol"><span class="annot"><span class="annottext">SrcLoc -&gt; Int
+</span><a href="Ast.Types.html#srcCol"><span class="hs-identifier hs-var hs-var">srcCol</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679137167"><span id="local-6989586621679137177"><span id="local-6989586621679137181"><span class="annot"><span class="annottext">Int -&gt; SrcLoc -&gt; ShowS
+[SrcLoc] -&gt; ShowS
+SrcLoc -&gt; String
+(Int -&gt; SrcLoc -&gt; ShowS)
+-&gt; (SrcLoc -&gt; String) -&gt; ([SrcLoc] -&gt; ShowS) -&gt; Show SrcLoc
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; SrcLoc -&gt; ShowS
+showsPrec :: Int -&gt; SrcLoc -&gt; ShowS
+$cshow :: SrcLoc -&gt; String
+show :: SrcLoc -&gt; String
+$cshowList :: [SrcLoc] -&gt; ShowS
+showList :: [SrcLoc] -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679137186"><span id="local-6989586621679137194"><span class="annot"><span class="annottext">SrcLoc -&gt; SrcLoc -&gt; Bool
+(SrcLoc -&gt; SrcLoc -&gt; Bool)
+-&gt; (SrcLoc -&gt; SrcLoc -&gt; Bool) -&gt; Eq SrcLoc
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: SrcLoc -&gt; SrcLoc -&gt; Bool
+== :: SrcLoc -&gt; SrcLoc -&gt; Bool
+$c/= :: SrcLoc -&gt; SrcLoc -&gt; Bool
+/= :: SrcLoc -&gt; SrcLoc -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679137202"><span id="local-6989586621679137209"><span id="local-6989586621679137215"><span id="local-6989586621679137219"><span id="local-6989586621679137222"><span id="local-6989586621679137225"><span id="local-6989586621679137228"><span class="annot"><span class="annottext">Eq SrcLoc
+Eq SrcLoc
+-&gt; (SrcLoc -&gt; SrcLoc -&gt; Ordering)
+-&gt; (SrcLoc -&gt; SrcLoc -&gt; Bool)
+-&gt; (SrcLoc -&gt; SrcLoc -&gt; Bool)
+-&gt; (SrcLoc -&gt; SrcLoc -&gt; Bool)
+-&gt; (SrcLoc -&gt; SrcLoc -&gt; Bool)
+-&gt; (SrcLoc -&gt; SrcLoc -&gt; SrcLoc)
+-&gt; (SrcLoc -&gt; SrcLoc -&gt; SrcLoc)
+-&gt; Ord SrcLoc
+SrcLoc -&gt; SrcLoc -&gt; Bool
+SrcLoc -&gt; SrcLoc -&gt; Ordering
+SrcLoc -&gt; SrcLoc -&gt; SrcLoc
+forall a.
+Eq a
+-&gt; (a -&gt; a -&gt; Ordering)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; Ord a
+$ccompare :: SrcLoc -&gt; SrcLoc -&gt; Ordering
+compare :: SrcLoc -&gt; SrcLoc -&gt; Ordering
+$c&lt; :: SrcLoc -&gt; SrcLoc -&gt; Bool
+&lt; :: SrcLoc -&gt; SrcLoc -&gt; Bool
+$c&lt;= :: SrcLoc -&gt; SrcLoc -&gt; Bool
+&lt;= :: SrcLoc -&gt; SrcLoc -&gt; Bool
+$c&gt; :: SrcLoc -&gt; SrcLoc -&gt; Bool
+&gt; :: SrcLoc -&gt; SrcLoc -&gt; Bool
+$c&gt;= :: SrcLoc -&gt; SrcLoc -&gt; Bool
+&gt;= :: SrcLoc -&gt; SrcLoc -&gt; Bool
+$cmax :: SrcLoc -&gt; SrcLoc -&gt; SrcLoc
+max :: SrcLoc -&gt; SrcLoc -&gt; SrcLoc
+$cmin :: SrcLoc -&gt; SrcLoc -&gt; SrcLoc
+min :: SrcLoc -&gt; SrcLoc -&gt; SrcLoc
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span class="annot"><span class="hs-comment">-- | Enhanced literal values including characters and floating-point numbers</span></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">data</span><span> </span><span id="Literal"><span class="annot"><a href="Ast.Types.html#Literal"><span class="hs-identifier hs-var">Literal</span></a></span></span><span>
+</span><span id="line-13"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="LInt"><span class="annot"><a href="Ast.Types.html#LInt"><span class="hs-identifier hs-var">LInt</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integer</span></span><span>
+</span><span id="line-14"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="LFloat"><span class="annot"><a href="Ast.Types.html#LFloat"><span class="hs-identifier hs-var">LFloat</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Double</span></span><span>
+</span><span id="line-15"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="LDouble"><span class="annot"><a href="Ast.Types.html#LDouble"><span class="hs-identifier hs-var">LDouble</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Double</span></span><span>
+</span><span id="line-16"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="LChar"><span class="annot"><a href="Ast.Types.html#LChar"><span class="hs-identifier hs-var">LChar</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Char</span></span><span>
+</span><span id="line-17"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="LBool"><span class="annot"><a href="Ast.Types.html#LBool"><span class="hs-identifier hs-var">LBool</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="LArray"><span class="annot"><a href="Ast.Types.html#LArray"><span class="hs-identifier hs-var">LArray</span></a></span></span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Ast.Types.html#Literal"><span class="hs-identifier hs-type">Literal</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="LNull"><span class="annot"><a href="Ast.Types.html#LNull"><span class="hs-identifier hs-var">LNull</span></a></span></span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="LStruct"><span class="annot"><a href="Ast.Types.html#LStruct"><span class="hs-identifier hs-var">LStruct</span></a></span></span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Ast.Types.html#Literal"><span class="hs-identifier hs-type">Literal</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679137241"><span id="local-6989586621679137262"><span id="local-6989586621679137266"><span class="annot"><span class="annottext">Int -&gt; Literal -&gt; ShowS
+[Literal] -&gt; ShowS
+Literal -&gt; String
+(Int -&gt; Literal -&gt; ShowS)
+-&gt; (Literal -&gt; String) -&gt; ([Literal] -&gt; ShowS) -&gt; Show Literal
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; Literal -&gt; ShowS
+showsPrec :: Int -&gt; Literal -&gt; ShowS
+$cshow :: Literal -&gt; String
+show :: Literal -&gt; String
+$cshowList :: [Literal] -&gt; ShowS
+showList :: [Literal] -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679137271"><span id="local-6989586621679137285"><span class="annot"><span class="annottext">Literal -&gt; Literal -&gt; Bool
+(Literal -&gt; Literal -&gt; Bool)
+-&gt; (Literal -&gt; Literal -&gt; Bool) -&gt; Eq Literal
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: Literal -&gt; Literal -&gt; Bool
+== :: Literal -&gt; Literal -&gt; Bool
+$c/= :: Literal -&gt; Literal -&gt; Bool
+/= :: Literal -&gt; Literal -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679137293"><span id="local-6989586621679137307"><span id="local-6989586621679137311"><span id="local-6989586621679137314"><span id="local-6989586621679137317"><span id="local-6989586621679137320"><span id="local-6989586621679137323"><span class="annot"><span class="annottext">Eq Literal
+Eq Literal
+-&gt; (Literal -&gt; Literal -&gt; Ordering)
+-&gt; (Literal -&gt; Literal -&gt; Bool)
+-&gt; (Literal -&gt; Literal -&gt; Bool)
+-&gt; (Literal -&gt; Literal -&gt; Bool)
+-&gt; (Literal -&gt; Literal -&gt; Bool)
+-&gt; (Literal -&gt; Literal -&gt; Literal)
+-&gt; (Literal -&gt; Literal -&gt; Literal)
+-&gt; Ord Literal
+Literal -&gt; Literal -&gt; Bool
+Literal -&gt; Literal -&gt; Ordering
+Literal -&gt; Literal -&gt; Literal
+forall a.
+Eq a
+-&gt; (a -&gt; a -&gt; Ordering)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; Ord a
+$ccompare :: Literal -&gt; Literal -&gt; Ordering
+compare :: Literal -&gt; Literal -&gt; Ordering
+$c&lt; :: Literal -&gt; Literal -&gt; Bool
+&lt; :: Literal -&gt; Literal -&gt; Bool
+$c&lt;= :: Literal -&gt; Literal -&gt; Bool
+&lt;= :: Literal -&gt; Literal -&gt; Bool
+$c&gt; :: Literal -&gt; Literal -&gt; Bool
+&gt; :: Literal -&gt; Literal -&gt; Bool
+$c&gt;= :: Literal -&gt; Literal -&gt; Bool
+&gt;= :: Literal -&gt; Literal -&gt; Bool
+$cmax :: Literal -&gt; Literal -&gt; Literal
+max :: Literal -&gt; Literal -&gt; Literal
+$cmin :: Literal -&gt; Literal -&gt; Literal
+min :: Literal -&gt; Literal -&gt; Literal
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-22"></span><span>
+</span><span id="line-23"></span><span class="hs-comment">-- | Enhanced type system with size information and qualifiers</span><span>
+</span><span id="line-24"></span><span class="hs-comment">-- | TInt: Int with bit width (8, 16, 32, 64)</span><span>
+</span><span id="line-25"></span><span class="hs-comment">-- | TFloat: 32-bit float</span><span>
+</span><span id="line-26"></span><span class="hs-comment">-- | TDouble: 64-bit float</span><span>
+</span><span id="line-27"></span><span class="hs-comment">-- | TArray: Array type with optional size</span><span>
+</span><span id="line-28"></span><span class="hs-comment">-- | TTypedef: Type aliases</span><span>
+</span><span id="line-29"></span><span class="hs-keyword">data</span><span> </span><span id="Type"><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-var">Type</span></a></span></span><span>
+</span><span id="line-30"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="TInt"><span class="annot"><a href="Ast.Types.html#TInt"><span class="hs-identifier hs-var">TInt</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-31"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TFloat"><span class="annot"><a href="Ast.Types.html#TFloat"><span class="hs-identifier hs-var">TFloat</span></a></span></span><span>
+</span><span id="line-32"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TDouble"><span class="annot"><a href="Ast.Types.html#TDouble"><span class="hs-identifier hs-var">TDouble</span></a></span></span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TChar"><span class="annot"><a href="Ast.Types.html#TChar"><span class="hs-identifier hs-var">TChar</span></a></span></span><span>
+</span><span id="line-34"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TBoolean"><span class="annot"><a href="Ast.Types.html#TBoolean"><span class="hs-identifier hs-var">TBoolean</span></a></span></span><span>
+</span><span id="line-35"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TVoid"><span class="annot"><a href="Ast.Types.html#TVoid"><span class="hs-identifier hs-var">TVoid</span></a></span></span><span>
+</span><span id="line-36"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TMutable"><span class="annot"><a href="Ast.Types.html#TMutable"><span class="hs-identifier hs-var">TMutable</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">Type</span></a></span><span>
+</span><span id="line-37"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TPointer"><span class="annot"><a href="Ast.Types.html#TPointer"><span class="hs-identifier hs-var">TPointer</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">Type</span></a></span><span>
+</span><span id="line-38"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TArray"><span class="annot"><a href="Ast.Types.html#TArray"><span class="hs-identifier hs-var">TArray</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">Type</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span>
+</span><span id="line-39"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TFunction"><span class="annot"><a href="Ast.Types.html#TFunction"><span class="hs-identifier hs-var">TFunction</span></a></span></span><span>
+</span><span id="line-40"></span><span>      </span><span class="hs-special">{</span><span> </span><span id="returnType"><span class="annot"><span class="annottext">Type -&gt; Type
+</span><a href="Ast.Types.html#returnType"><span class="hs-identifier hs-var hs-var">returnType</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">Type</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-41"></span><span>        </span><span id="paramTypes"><span class="annot"><span class="annottext">Type -&gt; [Type]
+</span><a href="Ast.Types.html#paramTypes"><span class="hs-identifier hs-var hs-var">paramTypes</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">Type</span></a></span><span class="hs-special">]</span><span class="hs-special">,</span><span>
+</span><span id="line-42"></span><span>        </span><span id="isVariadic"><span class="annot"><span class="annottext">Type -&gt; Bool
+</span><a href="Ast.Types.html#isVariadic"><span class="hs-identifier hs-var hs-var">isVariadic</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span>
+</span><span id="line-43"></span><span>      </span><span class="hs-special">}</span><span>
+</span><span id="line-44"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TStruct"><span class="annot"><a href="Ast.Types.html#TStruct"><span class="hs-identifier hs-var">TStruct</span></a></span></span><span>
+</span><span id="line-45"></span><span>      </span><span class="hs-special">{</span><span> </span><span id="structName"><span class="annot"><span class="annottext">Type -&gt; String
+</span><a href="Ast.Types.html#structName"><span class="hs-identifier hs-var hs-var">structName</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-46"></span><span>        </span><span id="fields"><span class="annot"><span class="annottext">Type -&gt; [(String, Type)]
+</span><a href="Ast.Types.html#fields"><span class="hs-identifier hs-var hs-var">fields</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">Type</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span>
+</span><span id="line-47"></span><span>      </span><span class="hs-special">}</span><span>
+</span><span id="line-48"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TUnion"><span class="annot"><a href="Ast.Types.html#TUnion"><span class="hs-identifier hs-var">TUnion</span></a></span></span><span>
+</span><span id="line-49"></span><span>      </span><span class="hs-special">{</span><span> </span><span id="unionName"><span class="annot"><span class="annottext">Type -&gt; String
+</span><a href="Ast.Types.html#unionName"><span class="hs-identifier hs-var hs-var">unionName</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-50"></span><span>        </span><span id="variants"><span class="annot"><span class="annottext">Type -&gt; [(String, Type)]
+</span><a href="Ast.Types.html#variants"><span class="hs-identifier hs-var hs-var">variants</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">Type</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span>
+</span><span id="line-51"></span><span>      </span><span class="hs-special">}</span><span>
+</span><span id="line-52"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TTypedef"><span class="annot"><a href="Ast.Types.html#TTypedef"><span class="hs-identifier hs-var">TTypedef</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">Type</span></a></span><span>
+</span><span id="line-53"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TUnknown"><span class="annot"><a href="Ast.Types.html#TUnknown"><span class="hs-identifier hs-var">TUnknown</span></a></span></span><span>
+</span><span id="line-54"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679137349"><span id="local-6989586621679137377"><span id="local-6989586621679137380"><span class="annot"><span class="annottext">Int -&gt; Type -&gt; ShowS
+[Type] -&gt; ShowS
+Type -&gt; String
+(Int -&gt; Type -&gt; ShowS)
+-&gt; (Type -&gt; String) -&gt; ([Type] -&gt; ShowS) -&gt; Show Type
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; Type -&gt; ShowS
+showsPrec :: Int -&gt; Type -&gt; ShowS
+$cshow :: Type -&gt; String
+show :: Type -&gt; String
+$cshowList :: [Type] -&gt; ShowS
+showList :: [Type] -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679137383"><span id="local-6989586621679137403"><span class="annot"><span class="annottext">Type -&gt; Type -&gt; Bool
+(Type -&gt; Type -&gt; Bool) -&gt; (Type -&gt; Type -&gt; Bool) -&gt; Eq Type
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: Type -&gt; Type -&gt; Bool
+== :: Type -&gt; Type -&gt; Bool
+$c/= :: Type -&gt; Type -&gt; Bool
+/= :: Type -&gt; Type -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679137408"><span id="local-6989586621679137428"><span id="local-6989586621679137431"><span id="local-6989586621679137434"><span id="local-6989586621679137437"><span id="local-6989586621679137440"><span id="local-6989586621679137443"><span class="annot"><span class="annottext">Eq Type
+Eq Type
+-&gt; (Type -&gt; Type -&gt; Ordering)
+-&gt; (Type -&gt; Type -&gt; Bool)
+-&gt; (Type -&gt; Type -&gt; Bool)
+-&gt; (Type -&gt; Type -&gt; Bool)
+-&gt; (Type -&gt; Type -&gt; Bool)
+-&gt; (Type -&gt; Type -&gt; Type)
+-&gt; (Type -&gt; Type -&gt; Type)
+-&gt; Ord Type
+Type -&gt; Type -&gt; Bool
+Type -&gt; Type -&gt; Ordering
+Type -&gt; Type -&gt; Type
+forall a.
+Eq a
+-&gt; (a -&gt; a -&gt; Ordering)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; Ord a
+$ccompare :: Type -&gt; Type -&gt; Ordering
+compare :: Type -&gt; Type -&gt; Ordering
+$c&lt; :: Type -&gt; Type -&gt; Bool
+&lt; :: Type -&gt; Type -&gt; Bool
+$c&lt;= :: Type -&gt; Type -&gt; Bool
+&lt;= :: Type -&gt; Type -&gt; Bool
+$c&gt; :: Type -&gt; Type -&gt; Bool
+&gt; :: Type -&gt; Type -&gt; Bool
+$c&gt;= :: Type -&gt; Type -&gt; Bool
+&gt;= :: Type -&gt; Type -&gt; Bool
+$cmax :: Type -&gt; Type -&gt; Type
+max :: Type -&gt; Type -&gt; Type
+$cmin :: Type -&gt; Type -&gt; Type
+min :: Type -&gt; Type -&gt; Type
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-55"></span><span>
+</span><span id="line-56"></span><span class="annot"><span class="hs-comment">-- | Assembly constraint type</span></span><span>
+</span><span id="line-57"></span><span class="hs-keyword">data</span><span> </span><span id="AsmConstraint"><span class="annot"><a href="Ast.Types.html#AsmConstraint"><span class="hs-identifier hs-var">AsmConstraint</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="AsmConstraint"><span class="annot"><a href="Ast.Types.html#AsmConstraint"><span class="hs-identifier hs-var">AsmConstraint</span></a></span></span><span>
+</span><span id="line-58"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="outputConstraint"><span class="annot"><span class="annottext">AsmConstraint -&gt; String
+</span><a href="Ast.Types.html#outputConstraint"><span class="hs-identifier hs-var hs-var">outputConstraint</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-59"></span><span>    </span><span id="inputConstraints"><span class="annot"><span class="annottext">AsmConstraint -&gt; [String]
+</span><a href="Ast.Types.html#inputConstraints"><span class="hs-identifier hs-var hs-var">inputConstraints</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span>
+</span><span id="line-60"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-61"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679137449"><span id="local-6989586621679137455"><span id="local-6989586621679137459"><span class="annot"><span class="annottext">Int -&gt; AsmConstraint -&gt; ShowS
+[AsmConstraint] -&gt; ShowS
+AsmConstraint -&gt; String
+(Int -&gt; AsmConstraint -&gt; ShowS)
+-&gt; (AsmConstraint -&gt; String)
+-&gt; ([AsmConstraint] -&gt; ShowS)
+-&gt; Show AsmConstraint
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; AsmConstraint -&gt; ShowS
+showsPrec :: Int -&gt; AsmConstraint -&gt; ShowS
+$cshow :: AsmConstraint -&gt; String
+show :: AsmConstraint -&gt; String
+$cshowList :: [AsmConstraint] -&gt; ShowS
+showList :: [AsmConstraint] -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679137462"><span id="local-6989586621679137467"><span class="annot"><span class="annottext">AsmConstraint -&gt; AsmConstraint -&gt; Bool
+(AsmConstraint -&gt; AsmConstraint -&gt; Bool)
+-&gt; (AsmConstraint -&gt; AsmConstraint -&gt; Bool) -&gt; Eq AsmConstraint
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: AsmConstraint -&gt; AsmConstraint -&gt; Bool
+== :: AsmConstraint -&gt; AsmConstraint -&gt; Bool
+$c/= :: AsmConstraint -&gt; AsmConstraint -&gt; Bool
+/= :: AsmConstraint -&gt; AsmConstraint -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679137473"><span id="local-6989586621679137478"><span id="local-6989586621679137483"><span id="local-6989586621679137487"><span id="local-6989586621679137490"><span id="local-6989586621679137493"><span id="local-6989586621679137496"><span class="annot"><span class="annottext">Eq AsmConstraint
+Eq AsmConstraint
+-&gt; (AsmConstraint -&gt; AsmConstraint -&gt; Ordering)
+-&gt; (AsmConstraint -&gt; AsmConstraint -&gt; Bool)
+-&gt; (AsmConstraint -&gt; AsmConstraint -&gt; Bool)
+-&gt; (AsmConstraint -&gt; AsmConstraint -&gt; Bool)
+-&gt; (AsmConstraint -&gt; AsmConstraint -&gt; Bool)
+-&gt; (AsmConstraint -&gt; AsmConstraint -&gt; AsmConstraint)
+-&gt; (AsmConstraint -&gt; AsmConstraint -&gt; AsmConstraint)
+-&gt; Ord AsmConstraint
+AsmConstraint -&gt; AsmConstraint -&gt; Bool
+AsmConstraint -&gt; AsmConstraint -&gt; Ordering
+AsmConstraint -&gt; AsmConstraint -&gt; AsmConstraint
+forall a.
+Eq a
+-&gt; (a -&gt; a -&gt; Ordering)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; Ord a
+$ccompare :: AsmConstraint -&gt; AsmConstraint -&gt; Ordering
+compare :: AsmConstraint -&gt; AsmConstraint -&gt; Ordering
+$c&lt; :: AsmConstraint -&gt; AsmConstraint -&gt; Bool
+&lt; :: AsmConstraint -&gt; AsmConstraint -&gt; Bool
+$c&lt;= :: AsmConstraint -&gt; AsmConstraint -&gt; Bool
+&lt;= :: AsmConstraint -&gt; AsmConstraint -&gt; Bool
+$c&gt; :: AsmConstraint -&gt; AsmConstraint -&gt; Bool
+&gt; :: AsmConstraint -&gt; AsmConstraint -&gt; Bool
+$c&gt;= :: AsmConstraint -&gt; AsmConstraint -&gt; Bool
+&gt;= :: AsmConstraint -&gt; AsmConstraint -&gt; Bool
+$cmax :: AsmConstraint -&gt; AsmConstraint -&gt; AsmConstraint
+max :: AsmConstraint -&gt; AsmConstraint -&gt; AsmConstraint
+$cmin :: AsmConstraint -&gt; AsmConstraint -&gt; AsmConstraint
+min :: AsmConstraint -&gt; AsmConstraint -&gt; AsmConstraint
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-62"></span><span>
+</span><span id="line-63"></span><span class="annot"><span class="hs-comment">-- | Assembly dialect</span></span><span>
+</span><span id="line-64"></span><span class="hs-keyword">data</span><span> </span><span id="AsmDialect"><span class="annot"><a href="Ast.Types.html#AsmDialect"><span class="hs-identifier hs-var">AsmDialect</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Intel"><span class="annot"><a href="Ast.Types.html#Intel"><span class="hs-identifier hs-var">Intel</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span id="ATT"><span class="annot"><a href="Ast.Types.html#ATT"><span class="hs-identifier hs-var">ATT</span></a></span></span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679137501"><span id="local-6989586621679137503"><span id="local-6989586621679137507"><span class="annot"><span class="annottext">Int -&gt; AsmDialect -&gt; ShowS
+[AsmDialect] -&gt; ShowS
+AsmDialect -&gt; String
+(Int -&gt; AsmDialect -&gt; ShowS)
+-&gt; (AsmDialect -&gt; String)
+-&gt; ([AsmDialect] -&gt; ShowS)
+-&gt; Show AsmDialect
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; AsmDialect -&gt; ShowS
+showsPrec :: Int -&gt; AsmDialect -&gt; ShowS
+$cshow :: AsmDialect -&gt; String
+show :: AsmDialect -&gt; String
+$cshowList :: [AsmDialect] -&gt; ShowS
+showList :: [AsmDialect] -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679137510"><span id="local-6989586621679137512"><span class="annot"><span class="annottext">AsmDialect -&gt; AsmDialect -&gt; Bool
+(AsmDialect -&gt; AsmDialect -&gt; Bool)
+-&gt; (AsmDialect -&gt; AsmDialect -&gt; Bool) -&gt; Eq AsmDialect
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: AsmDialect -&gt; AsmDialect -&gt; Bool
+== :: AsmDialect -&gt; AsmDialect -&gt; Bool
+$c/= :: AsmDialect -&gt; AsmDialect -&gt; Bool
+/= :: AsmDialect -&gt; AsmDialect -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679137518"><span id="local-6989586621679137520"><span id="local-6989586621679137522"><span id="local-6989586621679137526"><span id="local-6989586621679137529"><span id="local-6989586621679137532"><span id="local-6989586621679137535"><span class="annot"><span class="annottext">Eq AsmDialect
+Eq AsmDialect
+-&gt; (AsmDialect -&gt; AsmDialect -&gt; Ordering)
+-&gt; (AsmDialect -&gt; AsmDialect -&gt; Bool)
+-&gt; (AsmDialect -&gt; AsmDialect -&gt; Bool)
+-&gt; (AsmDialect -&gt; AsmDialect -&gt; Bool)
+-&gt; (AsmDialect -&gt; AsmDialect -&gt; Bool)
+-&gt; (AsmDialect -&gt; AsmDialect -&gt; AsmDialect)
+-&gt; (AsmDialect -&gt; AsmDialect -&gt; AsmDialect)
+-&gt; Ord AsmDialect
+AsmDialect -&gt; AsmDialect -&gt; Bool
+AsmDialect -&gt; AsmDialect -&gt; Ordering
+AsmDialect -&gt; AsmDialect -&gt; AsmDialect
+forall a.
+Eq a
+-&gt; (a -&gt; a -&gt; Ordering)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; Ord a
+$ccompare :: AsmDialect -&gt; AsmDialect -&gt; Ordering
+compare :: AsmDialect -&gt; AsmDialect -&gt; Ordering
+$c&lt; :: AsmDialect -&gt; AsmDialect -&gt; Bool
+&lt; :: AsmDialect -&gt; AsmDialect -&gt; Bool
+$c&lt;= :: AsmDialect -&gt; AsmDialect -&gt; Bool
+&lt;= :: AsmDialect -&gt; AsmDialect -&gt; Bool
+$c&gt; :: AsmDialect -&gt; AsmDialect -&gt; Bool
+&gt; :: AsmDialect -&gt; AsmDialect -&gt; Bool
+$c&gt;= :: AsmDialect -&gt; AsmDialect -&gt; Bool
+&gt;= :: AsmDialect -&gt; AsmDialect -&gt; Bool
+$cmax :: AsmDialect -&gt; AsmDialect -&gt; AsmDialect
+max :: AsmDialect -&gt; AsmDialect -&gt; AsmDialect
+$cmin :: AsmDialect -&gt; AsmDialect -&gt; AsmDialect
+min :: AsmDialect -&gt; AsmDialect -&gt; AsmDialect
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-65"></span><span>
+</span><span id="line-66"></span><span class="annot"><span class="hs-comment">-- | Assembly expression type</span></span><span>
+</span><span id="line-67"></span><span class="hs-keyword">data</span><span> </span><span id="AsmExpr"><span class="annot"><a href="Ast.Types.html#AsmExpr"><span class="hs-identifier hs-var">AsmExpr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="AsmExpr"><span class="annot"><a href="Ast.Types.html#AsmExpr"><span class="hs-identifier hs-var">AsmExpr</span></a></span></span><span>
+</span><span id="line-68"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="asmCode"><span class="annot"><span class="annottext">AsmExpr -&gt; String
+</span><a href="Ast.Types.html#asmCode"><span class="hs-identifier hs-var hs-var">asmCode</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-69"></span><span>    </span><span id="asmConstraints"><span class="annot"><span class="annottext">AsmExpr -&gt; AsmConstraint
+</span><a href="Ast.Types.html#asmConstraints"><span class="hs-identifier hs-var hs-var">asmConstraints</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#AsmConstraint"><span class="hs-identifier hs-type">AsmConstraint</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-70"></span><span>    </span><span id="asmArgs"><span class="annot"><span class="annottext">AsmExpr -&gt; [Expr]
+</span><a href="Ast.Types.html#asmArgs"><span class="hs-identifier hs-var hs-var">asmArgs</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span class="hs-special">]</span><span class="hs-special">,</span><span>
+</span><span id="line-71"></span><span>    </span><span id="asmParameters"><span class="annot"><span class="annottext">AsmExpr -&gt; [Type]
+</span><a href="Ast.Types.html#asmParameters"><span class="hs-identifier hs-var hs-var">asmParameters</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">Type</span></a></span><span class="hs-special">]</span><span class="hs-special">,</span><span>
+</span><span id="line-72"></span><span>    </span><span id="asmReturnType"><span class="annot"><span class="annottext">AsmExpr -&gt; Type
+</span><a href="Ast.Types.html#asmReturnType"><span class="hs-identifier hs-var hs-var">asmReturnType</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">Type</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-73"></span><span>    </span><span id="asmSideEffects"><span class="annot"><span class="annottext">AsmExpr -&gt; Bool
+</span><a href="Ast.Types.html#asmSideEffects"><span class="hs-identifier hs-var hs-var">asmSideEffects</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span class="hs-special">,</span><span>
+</span><span id="line-74"></span><span>    </span><span id="asmAlignStack"><span class="annot"><span class="annottext">AsmExpr -&gt; Bool
+</span><a href="Ast.Types.html#asmAlignStack"><span class="hs-identifier hs-var hs-var">asmAlignStack</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span class="hs-special">,</span><span>
+</span><span id="line-75"></span><span>    </span><span id="asmDialect"><span class="annot"><span class="annottext">AsmExpr -&gt; AsmDialect
+</span><a href="Ast.Types.html#asmDialect"><span class="hs-identifier hs-var hs-var">asmDialect</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#AsmDialect"><span class="hs-identifier hs-type">AsmDialect</span></a></span><span>
+</span><span id="line-76"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-77"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679137547"><span id="local-6989586621679137561"><span id="local-6989586621679137565"><span class="annot"><span class="annottext">Int -&gt; AsmExpr -&gt; ShowS
+[AsmExpr] -&gt; ShowS
+AsmExpr -&gt; String
+(Int -&gt; AsmExpr -&gt; ShowS)
+-&gt; (AsmExpr -&gt; String) -&gt; ([AsmExpr] -&gt; ShowS) -&gt; Show AsmExpr
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; AsmExpr -&gt; ShowS
+showsPrec :: Int -&gt; AsmExpr -&gt; ShowS
+$cshow :: AsmExpr -&gt; String
+show :: AsmExpr -&gt; String
+$cshowList :: [AsmExpr] -&gt; ShowS
+showList :: [AsmExpr] -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679137569"><span id="local-6989586621679137582"><span class="annot"><span class="annottext">AsmExpr -&gt; AsmExpr -&gt; Bool
+(AsmExpr -&gt; AsmExpr -&gt; Bool)
+-&gt; (AsmExpr -&gt; AsmExpr -&gt; Bool) -&gt; Eq AsmExpr
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: AsmExpr -&gt; AsmExpr -&gt; Bool
+== :: AsmExpr -&gt; AsmExpr -&gt; Bool
+$c/= :: AsmExpr -&gt; AsmExpr -&gt; Bool
+/= :: AsmExpr -&gt; AsmExpr -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679137589"><span id="local-6989586621679137602"><span id="local-6989586621679137615"><span id="local-6989586621679137619"><span id="local-6989586621679137622"><span id="local-6989586621679137625"><span id="local-6989586621679137628"><span class="annot"><span class="annottext">Eq AsmExpr
+Eq AsmExpr
+-&gt; (AsmExpr -&gt; AsmExpr -&gt; Ordering)
+-&gt; (AsmExpr -&gt; AsmExpr -&gt; Bool)
+-&gt; (AsmExpr -&gt; AsmExpr -&gt; Bool)
+-&gt; (AsmExpr -&gt; AsmExpr -&gt; Bool)
+-&gt; (AsmExpr -&gt; AsmExpr -&gt; Bool)
+-&gt; (AsmExpr -&gt; AsmExpr -&gt; AsmExpr)
+-&gt; (AsmExpr -&gt; AsmExpr -&gt; AsmExpr)
+-&gt; Ord AsmExpr
+AsmExpr -&gt; AsmExpr -&gt; Bool
+AsmExpr -&gt; AsmExpr -&gt; Ordering
+AsmExpr -&gt; AsmExpr -&gt; AsmExpr
+forall a.
+Eq a
+-&gt; (a -&gt; a -&gt; Ordering)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; Ord a
+$ccompare :: AsmExpr -&gt; AsmExpr -&gt; Ordering
+compare :: AsmExpr -&gt; AsmExpr -&gt; Ordering
+$c&lt; :: AsmExpr -&gt; AsmExpr -&gt; Bool
+&lt; :: AsmExpr -&gt; AsmExpr -&gt; Bool
+$c&lt;= :: AsmExpr -&gt; AsmExpr -&gt; Bool
+&lt;= :: AsmExpr -&gt; AsmExpr -&gt; Bool
+$c&gt; :: AsmExpr -&gt; AsmExpr -&gt; Bool
+&gt; :: AsmExpr -&gt; AsmExpr -&gt; Bool
+$c&gt;= :: AsmExpr -&gt; AsmExpr -&gt; Bool
+&gt;= :: AsmExpr -&gt; AsmExpr -&gt; Bool
+$cmax :: AsmExpr -&gt; AsmExpr -&gt; AsmExpr
+max :: AsmExpr -&gt; AsmExpr -&gt; AsmExpr
+$cmin :: AsmExpr -&gt; AsmExpr -&gt; AsmExpr
+min :: AsmExpr -&gt; AsmExpr -&gt; AsmExpr
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-78"></span><span>
+</span><span id="line-79"></span><span class="hs-comment">-- | Enhanced expression nodes</span><span>
+</span><span id="line-80"></span><span class="hs-comment">-- | StructAccess: For accessing struct fields</span><span>
+</span><span id="line-81"></span><span class="hs-comment">-- | ArrayAccess: For array indexing</span><span>
+</span><span id="line-82"></span><span class="hs-keyword">data</span><span> </span><span id="Expr"><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-var">Expr</span></a></span></span><span>
+</span><span id="line-83"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="Lit"><span class="annot"><a href="Ast.Types.html#Lit"><span class="hs-identifier hs-var">Lit</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">SrcLoc</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#Literal"><span class="hs-identifier hs-type">Literal</span></a></span><span>
+</span><span id="line-84"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Var"><span class="annot"><a href="Ast.Types.html#Var"><span class="hs-identifier hs-var">Var</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">SrcLoc</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">Type</span></a></span><span>
+</span><span id="line-85"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Function"><span class="annot"><a href="Ast.Types.html#Function"><span class="hs-identifier hs-var">Function</span></a></span></span><span>
+</span><span id="line-86"></span><span>      </span><span class="hs-special">{</span><span> </span><span id="funcLoc"><span class="annot"><span class="annottext">Expr -&gt; SrcLoc
+</span><a href="Ast.Types.html#funcLoc"><span class="hs-identifier hs-var hs-var">funcLoc</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">SrcLoc</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-87"></span><span>        </span><span id="funcName"><span class="annot"><span class="annottext">Expr -&gt; String
+</span><a href="Ast.Types.html#funcName"><span class="hs-identifier hs-var hs-var">funcName</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-88"></span><span>        </span><span id="funcType"><span class="annot"><span class="annottext">Expr -&gt; Type
+</span><a href="Ast.Types.html#funcType"><span class="hs-identifier hs-var hs-var">funcType</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">Type</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-89"></span><span>        </span><span id="funcParams"><span class="annot"><span class="annottext">Expr -&gt; [String]
+</span><a href="Ast.Types.html#funcParams"><span class="hs-identifier hs-var hs-var">funcParams</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span class="hs-special">,</span><span>
+</span><span id="line-90"></span><span>        </span><span id="funcBody"><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Types.html#funcBody"><span class="hs-identifier hs-var hs-var">funcBody</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span>
+</span><span id="line-91"></span><span>      </span><span class="hs-special">}</span><span>
+</span><span id="line-92"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="ForeignFunction"><span class="annot"><a href="Ast.Types.html#ForeignFunction"><span class="hs-identifier hs-var">ForeignFunction</span></a></span></span><span>
+</span><span id="line-93"></span><span>      </span><span class="hs-special">{</span><span> </span><span id="funcLoc"><span class="annot"><a href="Ast.Types.html#funcLoc"><span class="hs-identifier hs-var">funcLoc</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">SrcLoc</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-94"></span><span>        </span><span id="funcName"><span class="annot"><a href="Ast.Types.html#funcName"><span class="hs-identifier hs-var">funcName</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-95"></span><span>        </span><span id="funcType"><span class="annot"><a href="Ast.Types.html#funcType"><span class="hs-identifier hs-var">funcType</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">Type</span></a></span><span>
+</span><span id="line-96"></span><span>      </span><span class="hs-special">}</span><span>
+</span><span id="line-97"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Declaration"><span class="annot"><a href="Ast.Types.html#Declaration"><span class="hs-identifier hs-var">Declaration</span></a></span></span><span>
+</span><span id="line-98"></span><span>      </span><span class="hs-special">{</span><span> </span><span id="declLoc"><span class="annot"><span class="annottext">Expr -&gt; SrcLoc
+</span><a href="Ast.Types.html#declLoc"><span class="hs-identifier hs-var hs-var">declLoc</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">SrcLoc</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-99"></span><span>        </span><span id="declName"><span class="annot"><span class="annottext">Expr -&gt; String
+</span><a href="Ast.Types.html#declName"><span class="hs-identifier hs-var hs-var">declName</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-100"></span><span>        </span><span id="declType"><span class="annot"><span class="annottext">Expr -&gt; Type
+</span><a href="Ast.Types.html#declType"><span class="hs-identifier hs-var hs-var">declType</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">Type</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-101"></span><span>        </span><span id="declInit"><span class="annot"><span class="annottext">Expr -&gt; Maybe Expr
+</span><a href="Ast.Types.html#declInit"><span class="hs-identifier hs-var hs-var">declInit</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span>
+</span><span id="line-102"></span><span>      </span><span class="hs-special">}</span><span>
+</span><span id="line-103"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Assignment"><span class="annot"><a href="Ast.Types.html#Assignment"><span class="hs-identifier hs-var">Assignment</span></a></span></span><span>
+</span><span id="line-104"></span><span>      </span><span class="hs-special">{</span><span> </span><span id="assignLoc"><span class="annot"><span class="annottext">Expr -&gt; SrcLoc
+</span><a href="Ast.Types.html#assignLoc"><span class="hs-identifier hs-var hs-var">assignLoc</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">SrcLoc</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-105"></span><span>        </span><span id="assignTarget"><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Types.html#assignTarget"><span class="hs-identifier hs-var hs-var">assignTarget</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-106"></span><span>        </span><span id="assignValue"><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Types.html#assignValue"><span class="hs-identifier hs-var hs-var">assignValue</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span>
+</span><span id="line-107"></span><span>      </span><span class="hs-special">}</span><span>
+</span><span id="line-108"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Call"><span class="annot"><a href="Ast.Types.html#Call"><span class="hs-identifier hs-var">Call</span></a></span></span><span>
+</span><span id="line-109"></span><span>      </span><span class="hs-special">{</span><span> </span><span id="callLoc"><span class="annot"><span class="annottext">Expr -&gt; SrcLoc
+</span><a href="Ast.Types.html#callLoc"><span class="hs-identifier hs-var hs-var">callLoc</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">SrcLoc</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-110"></span><span>        </span><span id="callFunc"><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Types.html#callFunc"><span class="hs-identifier hs-var hs-var">callFunc</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-111"></span><span>        </span><span id="callArgs"><span class="annot"><span class="annottext">Expr -&gt; [Expr]
+</span><a href="Ast.Types.html#callArgs"><span class="hs-identifier hs-var hs-var">callArgs</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-112"></span><span>      </span><span class="hs-special">}</span><span>
+</span><span id="line-113"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="If"><span class="annot"><a href="Ast.Types.html#If"><span class="hs-identifier hs-var">If</span></a></span></span><span>
+</span><span id="line-114"></span><span>      </span><span class="hs-special">{</span><span> </span><span id="ifLoc"><span class="annot"><span class="annottext">Expr -&gt; SrcLoc
+</span><a href="Ast.Types.html#ifLoc"><span class="hs-identifier hs-var hs-var">ifLoc</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">SrcLoc</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-115"></span><span>        </span><span id="ifCond"><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Types.html#ifCond"><span class="hs-identifier hs-var hs-var">ifCond</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-116"></span><span>        </span><span id="ifThen"><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Types.html#ifThen"><span class="hs-identifier hs-var hs-var">ifThen</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-117"></span><span>        </span><span id="ifElse"><span class="annot"><span class="annottext">Expr -&gt; Maybe Expr
+</span><a href="Ast.Types.html#ifElse"><span class="hs-identifier hs-var hs-var">ifElse</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span>
+</span><span id="line-118"></span><span>      </span><span class="hs-special">}</span><span>
+</span><span id="line-119"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="While"><span class="annot"><a href="Ast.Types.html#While"><span class="hs-identifier hs-var">While</span></a></span></span><span>
+</span><span id="line-120"></span><span>      </span><span class="hs-special">{</span><span> </span><span id="whileLoc"><span class="annot"><span class="annottext">Expr -&gt; SrcLoc
+</span><a href="Ast.Types.html#whileLoc"><span class="hs-identifier hs-var hs-var">whileLoc</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">SrcLoc</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-121"></span><span>        </span><span id="whileCond"><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Types.html#whileCond"><span class="hs-identifier hs-var hs-var">whileCond</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-122"></span><span>        </span><span id="whileBody"><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Types.html#whileBody"><span class="hs-identifier hs-var hs-var">whileBody</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span>
+</span><span id="line-123"></span><span>      </span><span class="hs-special">}</span><span>
+</span><span id="line-124"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="From"><span class="annot"><a href="Ast.Types.html#From"><span class="hs-identifier hs-var">From</span></a></span></span><span>
+</span><span id="line-125"></span><span>      </span><span class="hs-special">{</span><span> </span><span id="fromLoc"><span class="annot"><span class="annottext">Expr -&gt; SrcLoc
+</span><a href="Ast.Types.html#fromLoc"><span class="hs-identifier hs-var hs-var">fromLoc</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">SrcLoc</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-126"></span><span>        </span><span id="fromStart"><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Types.html#fromStart"><span class="hs-identifier hs-var hs-var">fromStart</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-127"></span><span>        </span><span id="fromEnd"><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Types.html#fromEnd"><span class="hs-identifier hs-var hs-var">fromEnd</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-128"></span><span>        </span><span id="fromStep"><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Types.html#fromStep"><span class="hs-identifier hs-var hs-var">fromStep</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-129"></span><span>        </span><span id="fromVar"><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Types.html#fromVar"><span class="hs-identifier hs-var hs-var">fromVar</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-130"></span><span>        </span><span id="fromBody"><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Types.html#fromBody"><span class="hs-identifier hs-var hs-var">fromBody</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span>
+</span><span id="line-131"></span><span>      </span><span class="hs-special">}</span><span>
+</span><span id="line-132"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Block"><span class="annot"><a href="Ast.Types.html#Block"><span class="hs-identifier hs-var">Block</span></a></span></span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-133"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Return"><span class="annot"><a href="Ast.Types.html#Return"><span class="hs-identifier hs-var">Return</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">SrcLoc</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-134"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Break"><span class="annot"><a href="Ast.Types.html#Break"><span class="hs-identifier hs-var">Break</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">SrcLoc</span></a></span><span>
+</span><span id="line-135"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Continue"><span class="annot"><a href="Ast.Types.html#Continue"><span class="hs-identifier hs-var">Continue</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">SrcLoc</span></a></span><span>
+</span><span id="line-136"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Op"><span class="annot"><a href="Ast.Types.html#Op"><span class="hs-identifier hs-var">Op</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">SrcLoc</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#Operation"><span class="hs-identifier hs-type">Operation</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span>
+</span><span id="line-137"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="UnaryOp"><span class="annot"><a href="Ast.Types.html#UnaryOp"><span class="hs-identifier hs-var">UnaryOp</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">SrcLoc</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#UnaryOperation"><span class="hs-identifier hs-type">UnaryOperation</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span>
+</span><span id="line-138"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="StructAccess"><span class="annot"><a href="Ast.Types.html#StructAccess"><span class="hs-identifier hs-var">StructAccess</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">SrcLoc</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span>
+</span><span id="line-139"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="ArrayAccess"><span class="annot"><a href="Ast.Types.html#ArrayAccess"><span class="hs-identifier hs-var">ArrayAccess</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">SrcLoc</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span>
+</span><span id="line-140"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Cast"><span class="annot"><a href="Ast.Types.html#Cast"><span class="hs-identifier hs-var">Cast</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">SrcLoc</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">Type</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span>
+</span><span id="line-141"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Assembly"><span class="annot"><a href="Ast.Types.html#Assembly"><span class="hs-identifier hs-var">Assembly</span></a></span></span><span>
+</span><span id="line-142"></span><span>      </span><span class="hs-special">{</span><span> </span><span id="asmLoc"><span class="annot"><span class="annottext">Expr -&gt; SrcLoc
+</span><a href="Ast.Types.html#asmLoc"><span class="hs-identifier hs-var hs-var">asmLoc</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">SrcLoc</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-143"></span><span>        </span><span id="asmExpr"><span class="annot"><span class="annottext">Expr -&gt; AsmExpr
+</span><a href="Ast.Types.html#asmExpr"><span class="hs-identifier hs-var hs-var">asmExpr</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#AsmExpr"><span class="hs-identifier hs-type">AsmExpr</span></a></span><span>
+</span><span id="line-144"></span><span>      </span><span class="hs-special">}</span><span>
+</span><span id="line-145"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679137682"><span id="local-6989586621679137766"><span id="local-6989586621679137769"><span class="annot"><span class="annottext">Int -&gt; Expr -&gt; ShowS
+[Expr] -&gt; ShowS
+Expr -&gt; String
+(Int -&gt; Expr -&gt; ShowS)
+-&gt; (Expr -&gt; String) -&gt; ([Expr] -&gt; ShowS) -&gt; Show Expr
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; Expr -&gt; ShowS
+showsPrec :: Int -&gt; Expr -&gt; ShowS
+$cshow :: Expr -&gt; String
+show :: Expr -&gt; String
+$cshowList :: [Expr] -&gt; ShowS
+showList :: [Expr] -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679137772"><span id="local-6989586621679137836"><span class="annot"><span class="annottext">Expr -&gt; Expr -&gt; Bool
+(Expr -&gt; Expr -&gt; Bool) -&gt; (Expr -&gt; Expr -&gt; Bool) -&gt; Eq Expr
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: Expr -&gt; Expr -&gt; Bool
+== :: Expr -&gt; Expr -&gt; Bool
+$c/= :: Expr -&gt; Expr -&gt; Bool
+/= :: Expr -&gt; Expr -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679137841"><span id="local-6989586621679137905"><span id="local-6989586621679137908"><span id="local-6989586621679137911"><span id="local-6989586621679137914"><span id="local-6989586621679137917"><span id="local-6989586621679137920"><span class="annot"><span class="annottext">Eq Expr
+Eq Expr
+-&gt; (Expr -&gt; Expr -&gt; Ordering)
+-&gt; (Expr -&gt; Expr -&gt; Bool)
+-&gt; (Expr -&gt; Expr -&gt; Bool)
+-&gt; (Expr -&gt; Expr -&gt; Bool)
+-&gt; (Expr -&gt; Expr -&gt; Bool)
+-&gt; (Expr -&gt; Expr -&gt; Expr)
+-&gt; (Expr -&gt; Expr -&gt; Expr)
+-&gt; Ord Expr
+Expr -&gt; Expr -&gt; Bool
+Expr -&gt; Expr -&gt; Ordering
+Expr -&gt; Expr -&gt; Expr
+forall a.
+Eq a
+-&gt; (a -&gt; a -&gt; Ordering)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; Ord a
+$ccompare :: Expr -&gt; Expr -&gt; Ordering
+compare :: Expr -&gt; Expr -&gt; Ordering
+$c&lt; :: Expr -&gt; Expr -&gt; Bool
+&lt; :: Expr -&gt; Expr -&gt; Bool
+$c&lt;= :: Expr -&gt; Expr -&gt; Bool
+&lt;= :: Expr -&gt; Expr -&gt; Bool
+$c&gt; :: Expr -&gt; Expr -&gt; Bool
+&gt; :: Expr -&gt; Expr -&gt; Bool
+$c&gt;= :: Expr -&gt; Expr -&gt; Bool
+&gt;= :: Expr -&gt; Expr -&gt; Bool
+$cmax :: Expr -&gt; Expr -&gt; Expr
+max :: Expr -&gt; Expr -&gt; Expr
+$cmin :: Expr -&gt; Expr -&gt; Expr
+min :: Expr -&gt; Expr -&gt; Expr
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-146"></span><span>
+</span><span id="line-147"></span><span class="annot"><span class="hs-comment">-- | Enhanced operations including bitwise operations</span></span><span>
+</span><span id="line-148"></span><span class="hs-keyword">data</span><span> </span><span id="Operation"><span class="annot"><a href="Ast.Types.html#Operation"><span class="hs-identifier hs-var">Operation</span></a></span></span><span>
+</span><span id="line-149"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="Add"><span class="annot"><a href="Ast.Types.html#Add"><span class="hs-identifier hs-var">Add</span></a></span></span><span>
+</span><span id="line-150"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Sub"><span class="annot"><a href="Ast.Types.html#Sub"><span class="hs-identifier hs-var">Sub</span></a></span></span><span>
+</span><span id="line-151"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Mul"><span class="annot"><a href="Ast.Types.html#Mul"><span class="hs-identifier hs-var">Mul</span></a></span></span><span>
+</span><span id="line-152"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Div"><span class="annot"><a href="Ast.Types.html#Div"><span class="hs-identifier hs-var">Div</span></a></span></span><span>
+</span><span id="line-153"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Mod"><span class="annot"><a href="Ast.Types.html#Mod"><span class="hs-identifier hs-var">Mod</span></a></span></span><span>
+</span><span id="line-154"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="BitAnd"><span class="annot"><a href="Ast.Types.html#BitAnd"><span class="hs-identifier hs-var">BitAnd</span></a></span></span><span>
+</span><span id="line-155"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="BitOr"><span class="annot"><a href="Ast.Types.html#BitOr"><span class="hs-identifier hs-var">BitOr</span></a></span></span><span>
+</span><span id="line-156"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="BitXor"><span class="annot"><a href="Ast.Types.html#BitXor"><span class="hs-identifier hs-var">BitXor</span></a></span></span><span>
+</span><span id="line-157"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="BitShl"><span class="annot"><a href="Ast.Types.html#BitShl"><span class="hs-identifier hs-var">BitShl</span></a></span></span><span>
+</span><span id="line-158"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="BitShr"><span class="annot"><a href="Ast.Types.html#BitShr"><span class="hs-identifier hs-var">BitShr</span></a></span></span><span>
+</span><span id="line-159"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Lt"><span class="annot"><a href="Ast.Types.html#Lt"><span class="hs-identifier hs-var">Lt</span></a></span></span><span>
+</span><span id="line-160"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Gt"><span class="annot"><a href="Ast.Types.html#Gt"><span class="hs-identifier hs-var">Gt</span></a></span></span><span>
+</span><span id="line-161"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Lte"><span class="annot"><a href="Ast.Types.html#Lte"><span class="hs-identifier hs-var">Lte</span></a></span></span><span>
+</span><span id="line-162"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Gte"><span class="annot"><a href="Ast.Types.html#Gte"><span class="hs-identifier hs-var">Gte</span></a></span></span><span>
+</span><span id="line-163"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Eq"><span class="annot"><a href="Ast.Types.html#Eq"><span class="hs-identifier hs-var">Eq</span></a></span></span><span>
+</span><span id="line-164"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Ne"><span class="annot"><a href="Ast.Types.html#Ne"><span class="hs-identifier hs-var">Ne</span></a></span></span><span>
+</span><span id="line-165"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="And"><span class="annot"><a href="Ast.Types.html#And"><span class="hs-identifier hs-var">And</span></a></span></span><span>
+</span><span id="line-166"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Or"><span class="annot"><a href="Ast.Types.html#Or"><span class="hs-identifier hs-var">Or</span></a></span></span><span>
+</span><span id="line-167"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679137941"><span id="local-6989586621679137943"><span id="local-6989586621679137946"><span class="annot"><span class="annottext">Int -&gt; Operation -&gt; ShowS
+[Operation] -&gt; ShowS
+Operation -&gt; String
+(Int -&gt; Operation -&gt; ShowS)
+-&gt; (Operation -&gt; String)
+-&gt; ([Operation] -&gt; ShowS)
+-&gt; Show Operation
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; Operation -&gt; ShowS
+showsPrec :: Int -&gt; Operation -&gt; ShowS
+$cshow :: Operation -&gt; String
+show :: Operation -&gt; String
+$cshowList :: [Operation] -&gt; ShowS
+showList :: [Operation] -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679137949"><span id="local-6989586621679137951"><span class="annot"><span class="annottext">Operation -&gt; Operation -&gt; Bool
+(Operation -&gt; Operation -&gt; Bool)
+-&gt; (Operation -&gt; Operation -&gt; Bool) -&gt; Eq Operation
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: Operation -&gt; Operation -&gt; Bool
+== :: Operation -&gt; Operation -&gt; Bool
+$c/= :: Operation -&gt; Operation -&gt; Bool
+/= :: Operation -&gt; Operation -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679137956"><span id="local-6989586621679137958"><span id="local-6989586621679137960"><span id="local-6989586621679137963"><span id="local-6989586621679137966"><span id="local-6989586621679137969"><span id="local-6989586621679137972"><span class="annot"><span class="annottext">Eq Operation
+Eq Operation
+-&gt; (Operation -&gt; Operation -&gt; Ordering)
+-&gt; (Operation -&gt; Operation -&gt; Bool)
+-&gt; (Operation -&gt; Operation -&gt; Bool)
+-&gt; (Operation -&gt; Operation -&gt; Bool)
+-&gt; (Operation -&gt; Operation -&gt; Bool)
+-&gt; (Operation -&gt; Operation -&gt; Operation)
+-&gt; (Operation -&gt; Operation -&gt; Operation)
+-&gt; Ord Operation
+Operation -&gt; Operation -&gt; Bool
+Operation -&gt; Operation -&gt; Ordering
+Operation -&gt; Operation -&gt; Operation
+forall a.
+Eq a
+-&gt; (a -&gt; a -&gt; Ordering)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; Ord a
+$ccompare :: Operation -&gt; Operation -&gt; Ordering
+compare :: Operation -&gt; Operation -&gt; Ordering
+$c&lt; :: Operation -&gt; Operation -&gt; Bool
+&lt; :: Operation -&gt; Operation -&gt; Bool
+$c&lt;= :: Operation -&gt; Operation -&gt; Bool
+&lt;= :: Operation -&gt; Operation -&gt; Bool
+$c&gt; :: Operation -&gt; Operation -&gt; Bool
+&gt; :: Operation -&gt; Operation -&gt; Bool
+$c&gt;= :: Operation -&gt; Operation -&gt; Bool
+&gt;= :: Operation -&gt; Operation -&gt; Bool
+$cmax :: Operation -&gt; Operation -&gt; Operation
+max :: Operation -&gt; Operation -&gt; Operation
+$cmin :: Operation -&gt; Operation -&gt; Operation
+min :: Operation -&gt; Operation -&gt; Operation
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-168"></span><span>
+</span><span id="line-169"></span><span class="hs-comment">-- | Unary operations</span><span>
+</span><span id="line-170"></span><span class="hs-comment">-- | Not: Logical not</span><span>
+</span><span id="line-171"></span><span class="hs-comment">-- | BitNot: Bitwise not</span><span>
+</span><span id="line-172"></span><span class="hs-comment">-- | Deref: Pointer dereference</span><span>
+</span><span id="line-173"></span><span class="hs-comment">-- | AddrOf: Address-of operator</span><span>
+</span><span id="line-174"></span><span class="hs-comment">-- | PreInc: Pre-increment</span><span>
+</span><span id="line-175"></span><span class="hs-comment">-- | PreDec: Pre-decrement</span><span>
+</span><span id="line-176"></span><span class="hs-comment">-- | PostInc: Post-increment</span><span>
+</span><span id="line-177"></span><span class="hs-comment">-- | PostDec: Post-decrement</span><span>
+</span><span id="line-178"></span><span class="hs-keyword">data</span><span> </span><span id="UnaryOperation"><span class="annot"><a href="Ast.Types.html#UnaryOperation"><span class="hs-identifier hs-var">UnaryOperation</span></a></span></span><span>
+</span><span id="line-179"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="Not"><span class="annot"><a href="Ast.Types.html#Not"><span class="hs-identifier hs-var">Not</span></a></span></span><span>
+</span><span id="line-180"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="BitNot"><span class="annot"><a href="Ast.Types.html#BitNot"><span class="hs-identifier hs-var">BitNot</span></a></span></span><span>
+</span><span id="line-181"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Deref"><span class="annot"><a href="Ast.Types.html#Deref"><span class="hs-identifier hs-var">Deref</span></a></span></span><span>
+</span><span id="line-182"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="AddrOf"><span class="annot"><a href="Ast.Types.html#AddrOf"><span class="hs-identifier hs-var">AddrOf</span></a></span></span><span>
+</span><span id="line-183"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="PreInc"><span class="annot"><a href="Ast.Types.html#PreInc"><span class="hs-identifier hs-var">PreInc</span></a></span></span><span>
+</span><span id="line-184"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="PreDec"><span class="annot"><a href="Ast.Types.html#PreDec"><span class="hs-identifier hs-var">PreDec</span></a></span></span><span>
+</span><span id="line-185"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="PostInc"><span class="annot"><a href="Ast.Types.html#PostInc"><span class="hs-identifier hs-var">PostInc</span></a></span></span><span>
+</span><span id="line-186"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="PostDec"><span class="annot"><a href="Ast.Types.html#PostDec"><span class="hs-identifier hs-var">PostDec</span></a></span></span><span>
+</span><span id="line-187"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679137983"><span id="local-6989586621679137985"><span id="local-6989586621679137988"><span class="annot"><span class="annottext">Int -&gt; UnaryOperation -&gt; ShowS
+[UnaryOperation] -&gt; ShowS
+UnaryOperation -&gt; String
+(Int -&gt; UnaryOperation -&gt; ShowS)
+-&gt; (UnaryOperation -&gt; String)
+-&gt; ([UnaryOperation] -&gt; ShowS)
+-&gt; Show UnaryOperation
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; UnaryOperation -&gt; ShowS
+showsPrec :: Int -&gt; UnaryOperation -&gt; ShowS
+$cshow :: UnaryOperation -&gt; String
+show :: UnaryOperation -&gt; String
+$cshowList :: [UnaryOperation] -&gt; ShowS
+showList :: [UnaryOperation] -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679137991"><span id="local-6989586621679137993"><span class="annot"><span class="annottext">UnaryOperation -&gt; UnaryOperation -&gt; Bool
+(UnaryOperation -&gt; UnaryOperation -&gt; Bool)
+-&gt; (UnaryOperation -&gt; UnaryOperation -&gt; Bool) -&gt; Eq UnaryOperation
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: UnaryOperation -&gt; UnaryOperation -&gt; Bool
+== :: UnaryOperation -&gt; UnaryOperation -&gt; Bool
+$c/= :: UnaryOperation -&gt; UnaryOperation -&gt; Bool
+/= :: UnaryOperation -&gt; UnaryOperation -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679137998"><span id="local-6989586621679138000"><span id="local-6989586621679138002"><span id="local-6989586621679138005"><span id="local-6989586621679138008"><span id="local-6989586621679138011"><span id="local-6989586621679138014"><span class="annot"><span class="annottext">Eq UnaryOperation
+Eq UnaryOperation
+-&gt; (UnaryOperation -&gt; UnaryOperation -&gt; Ordering)
+-&gt; (UnaryOperation -&gt; UnaryOperation -&gt; Bool)
+-&gt; (UnaryOperation -&gt; UnaryOperation -&gt; Bool)
+-&gt; (UnaryOperation -&gt; UnaryOperation -&gt; Bool)
+-&gt; (UnaryOperation -&gt; UnaryOperation -&gt; Bool)
+-&gt; (UnaryOperation -&gt; UnaryOperation -&gt; UnaryOperation)
+-&gt; (UnaryOperation -&gt; UnaryOperation -&gt; UnaryOperation)
+-&gt; Ord UnaryOperation
+UnaryOperation -&gt; UnaryOperation -&gt; Bool
+UnaryOperation -&gt; UnaryOperation -&gt; Ordering
+UnaryOperation -&gt; UnaryOperation -&gt; UnaryOperation
+forall a.
+Eq a
+-&gt; (a -&gt; a -&gt; Ordering)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; Ord a
+$ccompare :: UnaryOperation -&gt; UnaryOperation -&gt; Ordering
+compare :: UnaryOperation -&gt; UnaryOperation -&gt; Ordering
+$c&lt; :: UnaryOperation -&gt; UnaryOperation -&gt; Bool
+&lt; :: UnaryOperation -&gt; UnaryOperation -&gt; Bool
+$c&lt;= :: UnaryOperation -&gt; UnaryOperation -&gt; Bool
+&lt;= :: UnaryOperation -&gt; UnaryOperation -&gt; Bool
+$c&gt; :: UnaryOperation -&gt; UnaryOperation -&gt; Bool
+&gt; :: UnaryOperation -&gt; UnaryOperation -&gt; Bool
+$c&gt;= :: UnaryOperation -&gt; UnaryOperation -&gt; Bool
+&gt;= :: UnaryOperation -&gt; UnaryOperation -&gt; Bool
+$cmax :: UnaryOperation -&gt; UnaryOperation -&gt; UnaryOperation
+max :: UnaryOperation -&gt; UnaryOperation -&gt; UnaryOperation
+$cmin :: UnaryOperation -&gt; UnaryOperation -&gt; UnaryOperation
+min :: UnaryOperation -&gt; UnaryOperation -&gt; UnaryOperation
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-188"></span><span>
+</span><span id="line-189"></span><span class="hs-comment">-- | Program representation with global scope information</span><span>
+</span><span id="line-190"></span><span class="hs-comment">-- | globals: Global variables and functions</span><span>
+</span><span id="line-191"></span><span class="hs-comment">-- | types: Type definitions</span><span>
+</span><span id="line-192"></span><span class="hs-comment">-- | sourceFile: Source file name</span><span>
+</span><span id="line-193"></span><span class="hs-keyword">data</span><span> </span><span id="Program"><span class="annot"><a href="Ast.Types.html#Program"><span class="hs-identifier hs-var">Program</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Program"><span class="annot"><a href="Ast.Types.html#Program"><span class="hs-identifier hs-var">Program</span></a></span></span><span>
+</span><span id="line-194"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="globals"><span class="annot"><span class="annottext">Program -&gt; [(String, Expr)]
+</span><a href="Ast.Types.html#globals"><span class="hs-identifier hs-var hs-var">globals</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">Expr</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span class="hs-special">,</span><span>
+</span><span id="line-195"></span><span>    </span><span id="types"><span class="annot"><span class="annottext">Program -&gt; [(String, Type)]
+</span><a href="Ast.Types.html#types"><span class="hs-identifier hs-var hs-var">types</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">Type</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span class="hs-special">,</span><span>
+</span><span id="line-196"></span><span>    </span><span id="sourceFile"><span class="annot"><span class="annottext">Program -&gt; String
+</span><a href="Ast.Types.html#sourceFile"><span class="hs-identifier hs-var hs-var">sourceFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-197"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-198"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679138021"><span id="local-6989586621679138030"><span id="local-6989586621679138034"><span class="annot"><span class="annottext">Int -&gt; Program -&gt; ShowS
+[Program] -&gt; ShowS
+Program -&gt; String
+(Int -&gt; Program -&gt; ShowS)
+-&gt; (Program -&gt; String) -&gt; ([Program] -&gt; ShowS) -&gt; Show Program
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; Program -&gt; ShowS
+showsPrec :: Int -&gt; Program -&gt; ShowS
+$cshow :: Program -&gt; String
+show :: Program -&gt; String
+$cshowList :: [Program] -&gt; ShowS
+showList :: [Program] -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679138040"><span id="local-6989586621679138048"><span class="annot"><span class="annottext">Program -&gt; Program -&gt; Bool
+(Program -&gt; Program -&gt; Bool)
+-&gt; (Program -&gt; Program -&gt; Bool) -&gt; Eq Program
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: Program -&gt; Program -&gt; Bool
+== :: Program -&gt; Program -&gt; Bool
+$c/= :: Program -&gt; Program -&gt; Bool
+/= :: Program -&gt; Program -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-199"></span></pre></body></html>

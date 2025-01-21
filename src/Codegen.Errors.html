@@ -1,0 +1,255 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE InstanceSigs #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Codegen.Errors</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-4"></span><span>
+</span><span id="line-5"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Ast.Types.html"><span class="hs-identifier">Ast.Types</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">AT</span></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html"><span class="hs-identifier">LLVM.AST.Type</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">T</span></span><span>
+</span><span id="line-7"></span><span>
+</span><span id="line-8"></span><span class="annot"><span class="hs-comment">-- | Error types for code generation.</span></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">data</span><span> </span><span id="CodegenError"><span class="annot"><a href="Codegen.Errors.html#CodegenError"><span class="hs-identifier hs-var">CodegenError</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="CodegenError"><span class="annot"><a href="Codegen.Errors.html#CodegenError"><span class="hs-identifier hs-var">CodegenError</span></a></span></span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="errorLoc"><span class="annot"><span class="annottext">CodegenError -&gt; SrcLoc
+</span><a href="Codegen.Errors.html#errorLoc"><span class="hs-identifier hs-var hs-var">errorLoc</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">AT.SrcLoc</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-11"></span><span>    </span><span id="errorType"><span class="annot"><span class="annottext">CodegenError -&gt; CodegenErrorType
+</span><a href="Codegen.Errors.html#errorType"><span class="hs-identifier hs-var hs-var">errorType</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Codegen.Errors.html#CodegenErrorType"><span class="hs-identifier hs-type">CodegenErrorType</span></a></span><span>
+</span><span id="line-12"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-13"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679139990"><span id="local-6989586621679139996"><span class="annot"><span class="annottext">CodegenError -&gt; CodegenError -&gt; Bool
+(CodegenError -&gt; CodegenError -&gt; Bool)
+-&gt; (CodegenError -&gt; CodegenError -&gt; Bool) -&gt; Eq CodegenError
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: CodegenError -&gt; CodegenError -&gt; Bool
+== :: CodegenError -&gt; CodegenError -&gt; Bool
+$c/= :: CodegenError -&gt; CodegenError -&gt; Bool
+/= :: CodegenError -&gt; CodegenError -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span>
+</span><span id="line-15"></span><span class="annot"><span class="hs-comment">-- | Error types for code generation.</span></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">data</span><span> </span><span id="CodegenErrorType"><span class="annot"><a href="Codegen.Errors.html#CodegenErrorType"><span class="hs-identifier hs-var">CodegenErrorType</span></a></span></span><span>
+</span><span id="line-17"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="UnsupportedTopLevel"><span class="annot"><a href="Codegen.Errors.html#UnsupportedTopLevel"><span class="hs-identifier hs-var">UnsupportedTopLevel</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="UnsupportedOperator"><span class="annot"><a href="Codegen.Errors.html#UnsupportedOperator"><span class="hs-identifier hs-var">UnsupportedOperator</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#Operation"><span class="hs-identifier hs-type">AT.Operation</span></a></span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="UnsupportedUnaryOperator"><span class="annot"><a href="Codegen.Errors.html#UnsupportedUnaryOperator"><span class="hs-identifier hs-var">UnsupportedUnaryOperator</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#UnaryOperation"><span class="hs-identifier hs-type">AT.UnaryOperation</span></a></span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="UnsupportedLiteral"><span class="annot"><a href="Codegen.Errors.html#UnsupportedLiteral"><span class="hs-identifier hs-var">UnsupportedLiteral</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#Literal"><span class="hs-identifier hs-type">AT.Literal</span></a></span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="UnsupportedType"><span class="annot"><a href="Codegen.Errors.html#UnsupportedType"><span class="hs-identifier hs-var">UnsupportedType</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">AT.Type</span></a></span><span>
+</span><span id="line-22"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="UnsupportedGlobalVar"><span class="annot"><a href="Codegen.Errors.html#UnsupportedGlobalVar"><span class="hs-identifier hs-var">UnsupportedGlobalVar</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#Literal"><span class="hs-identifier hs-type">AT.Literal</span></a></span><span>
+</span><span id="line-23"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="UnsupportedLocalVar"><span class="annot"><a href="Codegen.Errors.html#UnsupportedLocalVar"><span class="hs-identifier hs-var">UnsupportedLocalVar</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#Literal"><span class="hs-identifier hs-type">AT.Literal</span></a></span><span>
+</span><span id="line-24"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="UnsupportedDefinition"><span class="annot"><a href="Codegen.Errors.html#UnsupportedDefinition"><span class="hs-identifier hs-var">UnsupportedDefinition</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span>
+</span><span id="line-25"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="UnsupportedForDefinition"><span class="annot"><a href="Codegen.Errors.html#UnsupportedForDefinition"><span class="hs-identifier hs-var">UnsupportedForDefinition</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span>
+</span><span id="line-26"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="UnsupportedWhileDefinition"><span class="annot"><a href="Codegen.Errors.html#UnsupportedWhileDefinition"><span class="hs-identifier hs-var">UnsupportedWhileDefinition</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span>
+</span><span id="line-27"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="VariableNotFound"><span class="annot"><a href="Codegen.Errors.html#VariableNotFound"><span class="hs-identifier hs-var">VariableNotFound</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-28"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="UnsupportedFunctionCall"><span class="annot"><a href="Codegen.Errors.html#UnsupportedFunctionCall"><span class="hs-identifier hs-var">UnsupportedFunctionCall</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-29"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="UnsupportedStructureAccess"><span class="annot"><a href="Codegen.Errors.html#UnsupportedStructureAccess"><span class="hs-identifier hs-var">UnsupportedStructureAccess</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span>
+</span><span id="line-30"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="StructureFieldNotFound"><span class="annot"><a href="Codegen.Errors.html#StructureFieldNotFound"><span class="hs-identifier hs-var">StructureFieldNotFound</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-31"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="ContinueOutsideLoop"><span class="annot"><a href="Codegen.Errors.html#ContinueOutsideLoop"><span class="hs-identifier hs-var">ContinueOutsideLoop</span></a></span></span><span>
+</span><span id="line-32"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="BreakOutsideLoop"><span class="annot"><a href="Codegen.Errors.html#BreakOutsideLoop"><span class="hs-identifier hs-var">BreakOutsideLoop</span></a></span></span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="UnsupportedConversion"><span class="annot"><a href="Codegen.Errors.html#UnsupportedConversion"><span class="hs-identifier hs-var">UnsupportedConversion</span></a></span></span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#Type"><span class="hs-identifier hs-type">T.Type</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#Type"><span class="hs-identifier hs-type">T.Type</span></a></span><span>
+</span><span id="line-34"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="UnsupportedGlobalDeclaration"><span class="annot"><a href="Codegen.Errors.html#UnsupportedGlobalDeclaration"><span class="hs-identifier hs-var">UnsupportedGlobalDeclaration</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span>
+</span><span id="line-35"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679140019"><span id="local-6989586621679140046"><span class="annot"><span class="annottext">CodegenErrorType -&gt; CodegenErrorType -&gt; Bool
+(CodegenErrorType -&gt; CodegenErrorType -&gt; Bool)
+-&gt; (CodegenErrorType -&gt; CodegenErrorType -&gt; Bool)
+-&gt; Eq CodegenErrorType
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: CodegenErrorType -&gt; CodegenErrorType -&gt; Bool
+== :: CodegenErrorType -&gt; CodegenErrorType -&gt; Bool
+$c/= :: CodegenErrorType -&gt; CodegenErrorType -&gt; Bool
+/= :: CodegenErrorType -&gt; CodegenErrorType -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679140050"><span id="local-6989586621679140088"><span id="local-6989586621679140092"><span class="annot"><span class="annottext">Int -&gt; CodegenErrorType -&gt; ShowS
+[CodegenErrorType] -&gt; ShowS
+CodegenErrorType -&gt; String
+(Int -&gt; CodegenErrorType -&gt; ShowS)
+-&gt; (CodegenErrorType -&gt; String)
+-&gt; ([CodegenErrorType] -&gt; ShowS)
+-&gt; Show CodegenErrorType
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; CodegenErrorType -&gt; ShowS
+showsPrec :: Int -&gt; CodegenErrorType -&gt; ShowS
+$cshow :: CodegenErrorType -&gt; String
+show :: CodegenErrorType -&gt; String
+$cshowList :: [CodegenErrorType] -&gt; ShowS
+showList :: [CodegenErrorType] -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-36"></span><span>
+</span><span id="line-37"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679140097"><span id="local-6989586621679140102"><span class="annot"><span class="hs-identifier hs-type">Show</span></span><span> </span><span class="annot"><a href="Codegen.Errors.html#CodegenError"><span class="hs-identifier hs-type">CodegenError</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-38"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">show</span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Codegen.Errors.html#CodegenError"><span class="hs-identifier hs-type">CodegenError</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-39"></span><span>  </span><span id="local-6989586621679140108"><span class="annot"><span class="annottext">show :: CodegenError -&gt; String
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">show</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Codegen.Errors.html#CodegenError"><span class="hs-identifier hs-type">CodegenError</span></a></span><span> </span><span id="local-6989586621679140109"><span class="annot"><span class="annottext">SrcLoc
+</span><a href="#local-6989586621679140109"><span class="hs-identifier hs-var">loc</span></a></span></span><span> </span><span id="local-6989586621679140110"><span class="annot"><span class="annottext">CodegenErrorType
+</span><a href="#local-6989586621679140110"><span class="hs-identifier hs-var">err</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-40"></span><span>    </span><span class="annot"><span class="annottext">SrcLoc -&gt; String
+</span><a href="Ast.Types.html#srcFile"><span class="hs-identifier hs-var">AT.srcFile</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="#local-6989586621679140109"><span class="hs-identifier hs-var">loc</span></a></span><span>
+</span><span id="line-41"></span><span>      </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;:&quot;</span></span><span>
+</span><span id="line-42"></span><span>      </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">SrcLoc -&gt; Int
+</span><a href="Ast.Types.html#srcLine"><span class="hs-identifier hs-var">AT.srcLine</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="#local-6989586621679140109"><span class="hs-identifier hs-var">loc</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-43"></span><span>      </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;:&quot;</span></span><span>
+</span><span id="line-44"></span><span>      </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">SrcLoc -&gt; Int
+</span><a href="Ast.Types.html#srcCol"><span class="hs-identifier hs-var">AT.srcCol</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="#local-6989586621679140109"><span class="hs-identifier hs-var">loc</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-45"></span><span>      </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;: &quot;</span></span><span>
+</span><span id="line-46"></span><span>      </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">CodegenErrorType -&gt; String
+</span><a href="Codegen.Errors.html#showErrorType"><span class="hs-identifier hs-var">showErrorType</span></a></span><span> </span><span class="annot"><span class="annottext">CodegenErrorType
+</span><a href="#local-6989586621679140110"><span class="hs-identifier hs-var">err</span></a></span><span>
+</span><span id="line-47"></span><span>
+</span><span id="line-48"></span><span class="annot"><span class="hs-comment">-- | Show error type as string.</span></span><span>
+</span><span id="line-49"></span><span class="annot"><a href="Codegen.Errors.html#showErrorType"><span class="hs-identifier hs-type">showErrorType</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Codegen.Errors.html#CodegenErrorType"><span class="hs-identifier hs-type">CodegenErrorType</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-50"></span><span id="showErrorType"><span class="annot"><span class="annottext">showErrorType :: CodegenErrorType -&gt; String
+</span><a href="Codegen.Errors.html#showErrorType"><span class="hs-identifier hs-var hs-var">showErrorType</span></a></span></span><span> </span><span id="local-6989586621679140115"><span class="annot"><span class="annottext">CodegenErrorType
+</span><a href="#local-6989586621679140115"><span class="hs-identifier hs-var">err</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">CodegenErrorType
+</span><a href="#local-6989586621679140115"><span class="hs-identifier hs-var">err</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-51"></span><span>  </span><span class="annot"><a href="Codegen.Errors.html#UnsupportedTopLevel"><span class="hs-identifier hs-type">UnsupportedTopLevel</span></a></span><span> </span><span id="local-6989586621679140116"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679140116"><span class="hs-identifier hs-var">expr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Unsupported top-level expression: &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">Expr -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679140116"><span class="hs-identifier hs-var">expr</span></a></span><span>
+</span><span id="line-52"></span><span>  </span><span class="annot"><a href="Codegen.Errors.html#UnsupportedOperator"><span class="hs-identifier hs-type">UnsupportedOperator</span></a></span><span> </span><span id="local-6989586621679140117"><span class="annot"><span class="annottext">Operation
+</span><a href="#local-6989586621679140117"><span class="hs-identifier hs-var">op</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Unsupported operator: &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">Operation -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Operation
+</span><a href="#local-6989586621679140117"><span class="hs-identifier hs-var">op</span></a></span><span>
+</span><span id="line-53"></span><span>  </span><span class="annot"><a href="Codegen.Errors.html#UnsupportedUnaryOperator"><span class="hs-identifier hs-type">UnsupportedUnaryOperator</span></a></span><span> </span><span id="local-6989586621679140118"><span class="annot"><span class="annottext">UnaryOperation
+</span><a href="#local-6989586621679140118"><span class="hs-identifier hs-var">op</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Unsupported unary operator: &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">UnaryOperation -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">UnaryOperation
+</span><a href="#local-6989586621679140118"><span class="hs-identifier hs-var">op</span></a></span><span>
+</span><span id="line-54"></span><span>  </span><span class="annot"><a href="Codegen.Errors.html#UnsupportedLiteral"><span class="hs-identifier hs-type">UnsupportedLiteral</span></a></span><span> </span><span id="local-6989586621679140119"><span class="annot"><span class="annottext">Literal
+</span><a href="#local-6989586621679140119"><span class="hs-identifier hs-var">lit</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Unsupported literal: &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">Literal -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Literal
+</span><a href="#local-6989586621679140119"><span class="hs-identifier hs-var">lit</span></a></span><span>
+</span><span id="line-55"></span><span>  </span><span class="annot"><a href="Codegen.Errors.html#UnsupportedType"><span class="hs-identifier hs-type">UnsupportedType</span></a></span><span> </span><span id="local-6989586621679140120"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679140120"><span class="hs-identifier hs-var">typ</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Unsupported type: &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">Type -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679140120"><span class="hs-identifier hs-var">typ</span></a></span><span>
+</span><span id="line-56"></span><span>  </span><span class="annot"><a href="Codegen.Errors.html#UnsupportedGlobalVar"><span class="hs-identifier hs-type">UnsupportedGlobalVar</span></a></span><span> </span><span id="local-6989586621679140121"><span class="annot"><span class="annottext">Literal
+</span><a href="#local-6989586621679140121"><span class="hs-identifier hs-var">lit</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Unsupported global variable: &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">Literal -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Literal
+</span><a href="#local-6989586621679140121"><span class="hs-identifier hs-var">lit</span></a></span><span>
+</span><span id="line-57"></span><span>  </span><span class="annot"><a href="Codegen.Errors.html#UnsupportedLocalVar"><span class="hs-identifier hs-type">UnsupportedLocalVar</span></a></span><span> </span><span id="local-6989586621679140122"><span class="annot"><span class="annottext">Literal
+</span><a href="#local-6989586621679140122"><span class="hs-identifier hs-var">lit</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Unsupported local variable: &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">Literal -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Literal
+</span><a href="#local-6989586621679140122"><span class="hs-identifier hs-var">lit</span></a></span><span>
+</span><span id="line-58"></span><span>  </span><span class="annot"><a href="Codegen.Errors.html#UnsupportedDefinition"><span class="hs-identifier hs-type">UnsupportedDefinition</span></a></span><span> </span><span id="local-6989586621679140123"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679140123"><span class="hs-identifier hs-var">expr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Unsupported definition: &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">Expr -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679140123"><span class="hs-identifier hs-var">expr</span></a></span><span>
+</span><span id="line-59"></span><span>  </span><span class="annot"><a href="Codegen.Errors.html#UnsupportedForDefinition"><span class="hs-identifier hs-type">UnsupportedForDefinition</span></a></span><span> </span><span id="local-6989586621679140124"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679140124"><span class="hs-identifier hs-var">expr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Invalid for loop: &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">Expr -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679140124"><span class="hs-identifier hs-var">expr</span></a></span><span>
+</span><span id="line-60"></span><span>  </span><span class="annot"><a href="Codegen.Errors.html#UnsupportedWhileDefinition"><span class="hs-identifier hs-type">UnsupportedWhileDefinition</span></a></span><span> </span><span id="local-6989586621679140125"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679140125"><span class="hs-identifier hs-var">expr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Invalid while loop: &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">Expr -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679140125"><span class="hs-identifier hs-var">expr</span></a></span><span>
+</span><span id="line-61"></span><span>  </span><span class="annot"><a href="Codegen.Errors.html#VariableNotFound"><span class="hs-identifier hs-type">VariableNotFound</span></a></span><span> </span><span id="local-6989586621679140126"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679140126"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Variable not found: &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679140126"><span class="hs-identifier hs-var">name</span></a></span><span>
+</span><span id="line-62"></span><span>  </span><span class="annot"><a href="Codegen.Errors.html#UnsupportedFunctionCall"><span class="hs-identifier hs-type">UnsupportedFunctionCall</span></a></span><span> </span><span id="local-6989586621679140127"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679140127"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Invalid function call: &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679140127"><span class="hs-identifier hs-var">name</span></a></span><span>
+</span><span id="line-63"></span><span>  </span><span class="annot"><a href="Codegen.Errors.html#UnsupportedStructureAccess"><span class="hs-identifier hs-type">UnsupportedStructureAccess</span></a></span><span> </span><span id="local-6989586621679140128"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679140128"><span class="hs-identifier hs-var">expr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Invalid structure access: &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">Expr -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679140128"><span class="hs-identifier hs-var">expr</span></a></span><span>
+</span><span id="line-64"></span><span>  </span><span class="annot"><a href="Codegen.Errors.html#StructureFieldNotFound"><span class="hs-identifier hs-type">StructureFieldNotFound</span></a></span><span> </span><span id="local-6989586621679140129"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679140129"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Structure field not found: &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679140129"><span class="hs-identifier hs-var">name</span></a></span><span>
+</span><span id="line-65"></span><span>  </span><span class="annot"><span class="annottext">CodegenErrorType
+</span><a href="Codegen.Errors.html#ContinueOutsideLoop"><span class="hs-identifier hs-var">ContinueOutsideLoop</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Continue statement outside loop&quot;</span></span><span>
+</span><span id="line-66"></span><span>  </span><span class="annot"><span class="annottext">CodegenErrorType
+</span><a href="Codegen.Errors.html#BreakOutsideLoop"><span class="hs-identifier hs-var">BreakOutsideLoop</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Break statement outside loop&quot;</span></span><span>
+</span><span id="line-67"></span><span>  </span><span class="annot"><a href="Codegen.Errors.html#UnsupportedConversion"><span class="hs-identifier hs-type">UnsupportedConversion</span></a></span><span> </span><span id="local-6989586621679140130"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679140130"><span class="hs-identifier hs-var">from</span></a></span></span><span> </span><span id="local-6989586621679140131"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679140131"><span class="hs-identifier hs-var">to</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Unsupported conversion from &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">Type -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679140130"><span class="hs-identifier hs-var">from</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot; to &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">Type -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679140131"><span class="hs-identifier hs-var">to</span></a></span><span>
+</span><span id="line-68"></span><span>  </span><span class="annot"><a href="Codegen.Errors.html#UnsupportedGlobalDeclaration"><span class="hs-identifier hs-type">UnsupportedGlobalDeclaration</span></a></span><span> </span><span id="local-6989586621679140132"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679140132"><span class="hs-identifier hs-var">expr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Unsupported global declaration: &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">Expr -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679140132"><span class="hs-identifier hs-var">expr</span></a></span><span>
+</span><span id="line-69"></span></pre></body></html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Codegen.Utils</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/bytestring-0.11.2.0-2120a92760d69c390cda5bd5351073267e84f0cf320f64416d0af58dbf5a8935/share/doc/html/src/Data.ByteString.Short.html"><span class="hs-identifier">Data.ByteString.Short</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">BS</span></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.html"><span class="hs-identifier">LLVM.AST</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">AST</span></span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="annot"><span class="hs-comment">-- | Converts a string to a `ByteString`.</span></span><span>
+</span><span id="line-7"></span><span class="annot"><a href="Codegen.Utils.html#stringToByteString"><span class="hs-identifier hs-type">stringToByteString</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/bytestring-0.11.2.0-2120a92760d69c390cda5bd5351073267e84f0cf320f64416d0af58dbf5a8935/share/doc/html/src/Data.ByteString.Short.Internal.html#ShortByteString"><span class="hs-identifier hs-type">BS.ShortByteString</span></a></span><span>
+</span><span id="line-8"></span><span id="stringToByteString"><span class="annot"><span class="annottext">stringToByteString :: String -&gt; ShortByteString
+</span><a href="Codegen.Utils.html#stringToByteString"><span class="hs-identifier hs-var hs-var">stringToByteString</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Word8] -&gt; ShortByteString
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/bytestring-0.11.2.0-2120a92760d69c390cda5bd5351073267e84f0cf320f64416d0af58dbf5a8935/share/doc/html/src/Data.ByteString.Short.Internal.html#pack"><span class="hs-identifier hs-var">BS.pack</span></a></span><span> </span><span class="annot"><span class="annottext">([Word8] -&gt; ShortByteString)
+-&gt; (String -&gt; [Word8]) -&gt; String -&gt; ShortByteString
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(Char -&gt; Word8) -&gt; String -&gt; [Word8]
+forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
+</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; Word8
+forall a b. (Integral a, Num b) =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">fromIntegral</span></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; Word8) -&gt; (Char -&gt; Int) -&gt; Char -&gt; Word8
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Char -&gt; Int
+forall a. Enum a =&gt; a -&gt; Int
+</span><span class="hs-identifier hs-var">fromEnum</span></span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span class="annot"><span class="hs-comment">-- | Converts a `ByteString` to a string.</span></span><span>
+</span><span id="line-11"></span><span class="annot"><a href="Codegen.Utils.html#byteStringToString"><span class="hs-identifier hs-type">byteStringToString</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/bytestring-0.11.2.0-2120a92760d69c390cda5bd5351073267e84f0cf320f64416d0af58dbf5a8935/share/doc/html/src/Data.ByteString.Short.Internal.html#ShortByteString"><span class="hs-identifier hs-type">BS.ShortByteString</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-12"></span><span id="byteStringToString"><span class="annot"><span class="annottext">byteStringToString :: ShortByteString -&gt; String
+</span><a href="Codegen.Utils.html#byteStringToString"><span class="hs-identifier hs-var hs-var">byteStringToString</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Word8 -&gt; Char) -&gt; [Word8] -&gt; String
+forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
+</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; Char
+forall a. Enum a =&gt; Int -&gt; a
+</span><span class="hs-identifier hs-var">toEnum</span></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; Char) -&gt; (Word8 -&gt; Int) -&gt; Word8 -&gt; Char
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Word8 -&gt; Int
+forall a b. (Integral a, Num b) =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">fromIntegral</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">([Word8] -&gt; String)
+-&gt; (ShortByteString -&gt; [Word8]) -&gt; ShortByteString -&gt; String
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ShortByteString -&gt; [Word8]
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/bytestring-0.11.2.0-2120a92760d69c390cda5bd5351073267e84f0cf320f64416d0af58dbf5a8935/share/doc/html/src/Data.ByteString.Short.Internal.html#unpack"><span class="hs-identifier hs-var">BS.unpack</span></a></span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="annot"><span class="hs-comment">-- | Converts AST.Name to a string.</span></span><span>
+</span><span id="line-15"></span><span class="annot"><a href="Codegen.Utils.html#nameToString"><span class="hs-identifier hs-type">nameToString</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Name.html#Name"><span class="hs-identifier hs-type">AST.Name</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-16"></span><span id="nameToString"><span class="annot"><span class="annottext">nameToString :: Name -&gt; String
+</span><a href="Codegen.Utils.html#nameToString"><span class="hs-identifier hs-var hs-var">nameToString</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Name.html#Name"><span class="hs-identifier hs-type">AST.Name</span></a></span><span> </span><span id="local-6989586621679140241"><span class="annot"><span class="annottext">ShortByteString
+</span><a href="#local-6989586621679140241"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ShortByteString -&gt; String
+</span><a href="Codegen.Utils.html#byteStringToString"><span class="hs-identifier hs-var">byteStringToString</span></a></span><span> </span><span class="annot"><span class="annottext">ShortByteString
+</span><a href="#local-6989586621679140241"><span class="hs-identifier hs-var">n</span></a></span><span>
+</span><span id="line-17"></span><span class="annot"><a href="Codegen.Utils.html#nameToString"><span class="hs-identifier hs-var">nameToString</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Name.html#UnName"><span class="hs-identifier hs-type">AST.UnName</span></a></span><span> </span><span id="local-6989586621679140243"><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621679140243"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621679140243"><span class="hs-identifier hs-var">n</span></a></span><span>
+</span><span id="line-18"></span></pre></body></html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE FlexibleContexts #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE MonoLocalBinds #-}</span><span>
+</span><span id="line-3"></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Codegen.ExprGen.Global</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Ast.Types.html"><span class="hs-identifier">Ast.Types</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">AT</span></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Codegen.Errors.html"><span class="hs-identifier">Codegen.Errors</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">CC</span></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Codegen.ExprGen.ExprGen.html"><span class="hs-identifier">Codegen.ExprGen.ExprGen</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">EG</span></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Codegen.ExprGen.Function.html"><span class="hs-identifier">Codegen.ExprGen.Function</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">EFU</span></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Codegen.ExprGen.Types.html"><span class="hs-identifier">Codegen.ExprGen.Types</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">ET</span></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Codegen.ExprGen.Variable.html"><span class="hs-identifier">Codegen.ExprGen.Variable</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">EV</span></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Codegen.State.html"><span class="hs-identifier">Codegen.State</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">CS</span></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Codegen.Utils.html"><span class="hs-identifier">Codegen.Utils</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">U</span></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">CM</span></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad.Except</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">E</span></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.html"><span class="hs-identifier">LLVM.AST</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">AST</span></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Constant.html"><span class="hs-identifier">LLVM.AST.Constant</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">C</span></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.IRBuilder.Module.html"><span class="hs-identifier">LLVM.IRBuilder.Module</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">M</span></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Shared.Utils.html"><span class="hs-identifier">Shared.Utils</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">SU</span></span><span>
+</span><span id="line-20"></span><span>
+</span><span id="line-21"></span><span class="annot"><span class="hs-comment">-- | Generate LLVM code for global expressions.</span></span><span>
+</span><span id="line-22"></span><span id="local-6989586621679142973"><span class="annot"><a href="Codegen.ExprGen.Global.html#generateGlobal"><span class="hs-identifier hs-type">generateGlobal</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Codegen.State.html#MonadCodegen"><span class="hs-identifier hs-type">CS.MonadCodegen</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679142973"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Codegen.ExprGen.ExprGen.html#ExprGen"><span class="hs-identifier hs-type">EG.ExprGen</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679142973"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-23"></span><span id="generateGlobal"><span class="annot"><span class="annottext">generateGlobal :: forall (m :: * -&gt; *).
+(MonadCodegen m, ExprGen Expr) =&gt;
+Expr -&gt; m ()
+</span><a href="Codegen.ExprGen.Global.html#generateGlobal"><span class="hs-identifier hs-var hs-var">generateGlobal</span></a></span></span><span> </span><span id="local-6989586621679143039"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679143039"><span class="hs-identifier hs-var">expr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679143039"><span class="hs-identifier hs-var">expr</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-24"></span><span>  </span><span class="annot"><a href="Ast.Types.html#Function"><span class="hs-identifier hs-type">AT.Function</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">m Operand -&gt; m ()
+forall (f :: * -&gt; *) a. Functor f =&gt; f a -&gt; f ()
+</span><span class="hs-identifier hs-var">CM.void</span></span><span> </span><span class="annot"><span class="annottext">(m Operand -&gt; m ()) -&gt; m Operand -&gt; m ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Expr -&gt; m Operand
+forall (m :: * -&gt; *).
+(MonadCodegen m, ExprGen Expr) =&gt;
+Expr -&gt; m Operand
+</span><a href="Codegen.ExprGen.Function.html#generateFunction"><span class="hs-identifier hs-var">EFU.generateFunction</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679143039"><span class="hs-identifier hs-var">expr</span></a></span><span>
+</span><span id="line-25"></span><span>  </span><span class="annot"><a href="Ast.Types.html#ForeignFunction"><span class="hs-identifier hs-type">AT.ForeignFunction</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">m Operand -&gt; m ()
+forall (f :: * -&gt; *) a. Functor f =&gt; f a -&gt; f ()
+</span><span class="hs-identifier hs-var">CM.void</span></span><span> </span><span class="annot"><span class="annottext">(m Operand -&gt; m ()) -&gt; m Operand -&gt; m ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Expr -&gt; m Operand
+forall (m :: * -&gt; *).
+(MonadCodegen m, ExprGen Expr) =&gt;
+Expr -&gt; m Operand
+</span><a href="Codegen.ExprGen.Function.html#generateForeignFunction"><span class="hs-identifier hs-var">EFU.generateForeignFunction</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679143039"><span class="hs-identifier hs-var">expr</span></a></span><span>
+</span><span id="line-26"></span><span>  </span><span class="annot"><a href="Ast.Types.html#Declaration"><span class="hs-identifier hs-type">AT.Declaration</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">m () -&gt; m ()
+forall (f :: * -&gt; *) a. Functor f =&gt; f a -&gt; f ()
+</span><span class="hs-identifier hs-var">CM.void</span></span><span> </span><span class="annot"><span class="annottext">(m () -&gt; m ()) -&gt; m () -&gt; m ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Expr -&gt; m ()
+forall (m :: * -&gt; *).
+(MonadCodegen m, ExprGen Expr) =&gt;
+Expr -&gt; m ()
+</span><a href="Codegen.ExprGen.Global.html#generateGlobalDeclaration"><span class="hs-identifier hs-var">generateGlobalDeclaration</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679143039"><span class="hs-identifier hs-var">expr</span></a></span><span>
+</span><span id="line-27"></span><span>  </span><span class="annot"><span class="annottext">Expr
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">CodegenError -&gt; m ()
+forall a. CodegenError -&gt; m a
+forall e (m :: * -&gt; *) a. MonadError e m =&gt; e -&gt; m a
+</span><span class="hs-identifier hs-var">E.throwError</span></span><span> </span><span class="annot"><span class="annottext">(CodegenError -&gt; m ()) -&gt; CodegenError -&gt; m ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; CodegenErrorType -&gt; CodegenError
+</span><a href="Codegen.Errors.html#CodegenError"><span class="hs-identifier hs-var">CC.CodegenError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; SrcLoc
+</span><a href="Shared.Utils.html#getLoc"><span class="hs-identifier hs-var">SU.getLoc</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679143039"><span class="hs-identifier hs-var">expr</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(CodegenErrorType -&gt; CodegenError)
+-&gt; CodegenErrorType -&gt; CodegenError
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Expr -&gt; CodegenErrorType
+</span><a href="Codegen.Errors.html#UnsupportedTopLevel"><span class="hs-identifier hs-var">CC.UnsupportedTopLevel</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679143039"><span class="hs-identifier hs-var">expr</span></a></span><span>
+</span><span id="line-28"></span><span>
+</span><span id="line-29"></span><span class="annot"><span class="hs-comment">-- | Generate LLVM code for global declarations.</span></span><span>
+</span><span id="line-30"></span><span id="local-6989586621679143051"><span class="annot"><a href="Codegen.ExprGen.Global.html#generateGlobalDeclaration"><span class="hs-identifier hs-type">generateGlobalDeclaration</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Codegen.State.html#MonadCodegen"><span class="hs-identifier hs-type">CS.MonadCodegen</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679143051"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Codegen.ExprGen.ExprGen.html#ExprGen"><span class="hs-identifier hs-type">EG.ExprGen</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679143051"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-31"></span><span id="generateGlobalDeclaration"><span class="annot"><span class="annottext">generateGlobalDeclaration :: forall (m :: * -&gt; *).
+(MonadCodegen m, ExprGen Expr) =&gt;
+Expr -&gt; m ()
+</span><a href="Codegen.ExprGen.Global.html#generateGlobalDeclaration"><span class="hs-identifier hs-var hs-var">generateGlobalDeclaration</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#Declaration"><span class="hs-identifier hs-type">AT.Declaration</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679143073"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679143073"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span id="local-6989586621679143074"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679143074"><span class="hs-identifier hs-var">typ</span></a></span></span><span> </span><span id="local-6989586621679143075"><span class="annot"><span class="annottext">Maybe Expr
+</span><a href="#local-6989586621679143075"><span class="hs-identifier hs-var">initExpr</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-32"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679143076"><span class="annot"><span class="annottext">varType :: Type
+</span><a href="#local-6989586621679143076"><span class="hs-identifier hs-var hs-var">varType</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Type -&gt; Type
+forall a. ToLLVM a =&gt; a -&gt; Type
+</span><a href="Codegen.ExprGen.Types.html#toLLVM"><span class="hs-identifier hs-var">ET.toLLVM</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679143074"><span class="hs-identifier hs-var">typ</span></a></span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Maybe Expr
+</span><a href="#local-6989586621679143075"><span class="hs-identifier hs-var">initExpr</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-34"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#Lit"><span class="hs-identifier hs-type">AT.Lit</span></a></span><span> </span><span id="local-6989586621679143079"><span class="annot"><span class="annottext">SrcLoc
+</span><a href="#local-6989586621679143079"><span class="hs-identifier hs-var">loc</span></a></span></span><span> </span><span id="local-6989586621679143080"><span class="annot"><span class="annottext">Literal
+</span><a href="#local-6989586621679143080"><span class="hs-identifier hs-var">lit</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-35"></span><span>      </span><span id="local-6989586621679143081"><span class="annot"><span class="annottext">Constant
+</span><a href="#local-6989586621679143081"><span class="hs-identifier hs-var">initConstant</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Literal -&gt; SrcLoc -&gt; m Constant
+forall (m :: * -&gt; *).
+(MonadCodegen m, ExprGen Expr) =&gt;
+Literal -&gt; SrcLoc -&gt; m Constant
+</span><a href="Codegen.ExprGen.Variable.html#generateConstant"><span class="hs-identifier hs-var">EV.generateConstant</span></a></span><span> </span><span class="annot"><span class="annottext">Literal
+</span><a href="#local-6989586621679143080"><span class="hs-identifier hs-var">lit</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="#local-6989586621679143079"><span class="hs-identifier hs-var">loc</span></a></span><span>
+</span><span id="line-36"></span><span>      </span><span id="local-6989586621679143083"><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679143083"><span class="hs-identifier hs-var">var</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Name -&gt; Type -&gt; Constant -&gt; m Operand
+forall (m :: * -&gt; *).
+MonadModuleBuilder m =&gt;
+Name -&gt; Type -&gt; Constant -&gt; m Operand
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.IRBuilder.Module.html#global"><span class="hs-identifier hs-var">M.global</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShortByteString -&gt; Name
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Name.html#Name"><span class="hs-identifier hs-var">AST.Name</span></a></span><span> </span><span class="annot"><span class="annottext">(ShortByteString -&gt; Name) -&gt; ShortByteString -&gt; Name
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShortByteString
+</span><a href="Codegen.Utils.html#stringToByteString"><span class="hs-identifier hs-var">U.stringToByteString</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679143073"><span class="hs-identifier hs-var">name</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679143076"><span class="hs-identifier hs-var">varType</span></a></span><span> </span><span class="annot"><span class="annottext">Constant
+</span><a href="#local-6989586621679143081"><span class="hs-identifier hs-var">initConstant</span></a></span><span>
+</span><span id="line-37"></span><span>      </span><span class="annot"><span class="annottext">String -&gt; Operand -&gt; m ()
+forall (m :: * -&gt; *). VarBinding m =&gt; String -&gt; Operand -&gt; m ()
+</span><a href="Codegen.State.html#addGlobalVar"><span class="hs-identifier hs-var">CS.addGlobalVar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679143073"><span class="hs-identifier hs-var">name</span></a></span><span> </span><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679143083"><span class="hs-identifier hs-var">var</span></a></span><span>
+</span><span id="line-38"></span><span>    </span><span class="annot"><span class="annottext">Maybe Expr
+</span><span class="hs-identifier hs-var">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-39"></span><span>      </span><span id="local-6989586621679143088"><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679143088"><span class="hs-identifier hs-var">var</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Name -&gt; Type -&gt; Constant -&gt; m Operand
+forall (m :: * -&gt; *).
+MonadModuleBuilder m =&gt;
+Name -&gt; Type -&gt; Constant -&gt; m Operand
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.IRBuilder.Module.html#global"><span class="hs-identifier hs-var">M.global</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShortByteString -&gt; Name
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Name.html#Name"><span class="hs-identifier hs-var">AST.Name</span></a></span><span> </span><span class="annot"><span class="annottext">(ShortByteString -&gt; Name) -&gt; ShortByteString -&gt; Name
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShortByteString
+</span><a href="Codegen.Utils.html#stringToByteString"><span class="hs-identifier hs-var">U.stringToByteString</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679143073"><span class="hs-identifier hs-var">name</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679143076"><span class="hs-identifier hs-var">varType</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Type -&gt; Constant
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Constant.html#Undef"><span class="hs-identifier hs-var">C.Undef</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679143076"><span class="hs-identifier hs-var">varType</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-40"></span><span>      </span><span class="annot"><span class="annottext">String -&gt; Operand -&gt; m ()
+forall (m :: * -&gt; *). VarBinding m =&gt; String -&gt; Operand -&gt; m ()
+</span><a href="Codegen.State.html#addGlobalVar"><span class="hs-identifier hs-var">CS.addGlobalVar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679143073"><span class="hs-identifier hs-var">name</span></a></span><span> </span><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679143088"><span class="hs-identifier hs-var">var</span></a></span><span>
+</span><span id="line-41"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679143090"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679143090"><span class="hs-identifier hs-var">expr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">CodegenError -&gt; m ()
+forall a. CodegenError -&gt; m a
+forall e (m :: * -&gt; *) a. MonadError e m =&gt; e -&gt; m a
+</span><span class="hs-identifier hs-var">E.throwError</span></span><span> </span><span class="annot"><span class="annottext">(CodegenError -&gt; m ()) -&gt; CodegenError -&gt; m ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; CodegenErrorType -&gt; CodegenError
+</span><a href="Codegen.Errors.html#CodegenError"><span class="hs-identifier hs-var">CC.CodegenError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; SrcLoc
+</span><a href="Shared.Utils.html#getLoc"><span class="hs-identifier hs-var">SU.getLoc</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679143090"><span class="hs-identifier hs-var">expr</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(CodegenErrorType -&gt; CodegenError)
+-&gt; CodegenErrorType -&gt; CodegenError
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Expr -&gt; CodegenErrorType
+</span><a href="Codegen.Errors.html#UnsupportedGlobalDeclaration"><span class="hs-identifier hs-var">CC.UnsupportedGlobalDeclaration</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679143090"><span class="hs-identifier hs-var">expr</span></a></span><span>
+</span><span id="line-42"></span><span class="annot"><a href="Codegen.ExprGen.Global.html#generateGlobalDeclaration"><span class="hs-identifier hs-var">generateGlobalDeclaration</span></a></span><span> </span><span id="local-6989586621679143092"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679143092"><span class="hs-identifier hs-var">expr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">CodegenError -&gt; m ()
+forall a. CodegenError -&gt; m a
+forall e (m :: * -&gt; *) a. MonadError e m =&gt; e -&gt; m a
+</span><span class="hs-identifier hs-var">E.throwError</span></span><span> </span><span class="annot"><span class="annottext">(CodegenError -&gt; m ()) -&gt; CodegenError -&gt; m ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; CodegenErrorType -&gt; CodegenError
+</span><a href="Codegen.Errors.html#CodegenError"><span class="hs-identifier hs-var">CC.CodegenError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; SrcLoc
+</span><a href="Shared.Utils.html#getLoc"><span class="hs-identifier hs-var">SU.getLoc</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679143092"><span class="hs-identifier hs-var">expr</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(CodegenErrorType -&gt; CodegenError)
+-&gt; CodegenErrorType -&gt; CodegenError
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Expr -&gt; CodegenErrorType
+</span><a href="Codegen.Errors.html#UnsupportedGlobalDeclaration"><span class="hs-identifier hs-var">CC.UnsupportedGlobalDeclaration</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679143092"><span class="hs-identifier hs-var">expr</span></a></span><span>
+</span><span id="line-43"></span></pre></body></html>

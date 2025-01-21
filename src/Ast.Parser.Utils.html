@@ -1,0 +1,1002 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Ast.Parser.Utils</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Ast.Parser.State.html"><span class="hs-identifier">Ast.Parser.State</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">PS</span></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Ast.Types.html"><span class="hs-identifier">Ast.Types</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">AT</span></span><span>
+</span><span id="line-5"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Monad.Combinators.Expr.html"><span class="hs-identifier">Control.Monad.Combinators.Expr</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">CE</span></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad.State</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">S</span></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Char</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">C</span></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.html"><span class="hs-identifier">Text.Megaparsec</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">M</span></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.html"><span class="hs-identifier">Text.Megaparsec.Char</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">MC</span></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.Lexer.html"><span class="hs-identifier">Text.Megaparsec.Char.Lexer</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">ML</span></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Pos.html"><span class="hs-identifier">Text.Megaparsec.Pos</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">MP</span></span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="annot"><span class="hs-comment">-- | A type alias for the parser, based on `Parsec` with `Void` error type and `String` input.</span></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">type</span><span> </span><span id="Parser"><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-var">Parser</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Internal.html#ParsecT"><span class="hs-identifier hs-type">M.ParsecT</span></a></span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#ParseErrorCustom"><span class="hs-identifier hs-type">ParseErrorCustom</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">S.StateT</span></span><span> </span><span class="annot"><a href="Ast.Parser.State.html#ParserState"><span class="hs-identifier hs-type">PS.ParserState</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">)</span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span class="annot"><span class="hs-comment">-- | Custom error types for the parser.</span></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">data</span><span> </span><span id="ParseErrorCustom"><span class="annot"><a href="Ast.Parser.Utils.html#ParseErrorCustom"><span class="hs-identifier hs-var">ParseErrorCustom</span></a></span></span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="UnknownType"><span class="annot"><a href="Ast.Parser.Utils.html#UnknownType"><span class="hs-identifier hs-var">UnknownType</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="InvalidFunctionType"><span class="annot"><a href="Ast.Parser.Utils.html#InvalidFunctionType"><span class="hs-identifier hs-var">InvalidFunctionType</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">AT.Type</span></a></span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="InvalidDefer"><span class="annot"><a href="Ast.Parser.Utils.html#InvalidDefer"><span class="hs-identifier hs-var">InvalidDefer</span></a></span></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679138472"><span id="local-6989586621679138486"><span id="local-6989586621679138490"><span class="annot"><span class="annottext">Int -&gt; ParseErrorCustom -&gt; ShowS
+[ParseErrorCustom] -&gt; ShowS
+ParseErrorCustom -&gt; [Char]
+(Int -&gt; ParseErrorCustom -&gt; ShowS)
+-&gt; (ParseErrorCustom -&gt; [Char])
+-&gt; ([ParseErrorCustom] -&gt; ShowS)
+-&gt; Show ParseErrorCustom
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; [Char]) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; ParseErrorCustom -&gt; ShowS
+showsPrec :: Int -&gt; ParseErrorCustom -&gt; ShowS
+$cshow :: ParseErrorCustom -&gt; [Char]
+show :: ParseErrorCustom -&gt; [Char]
+$cshowList :: [ParseErrorCustom] -&gt; ShowS
+showList :: [ParseErrorCustom] -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679138498"><span id="local-6989586621679138507"><span id="local-6989586621679138513"><span id="local-6989586621679138516"><span id="local-6989586621679138519"><span id="local-6989586621679138522"><span id="local-6989586621679138525"><span class="annot"><span class="annottext">Eq ParseErrorCustom
+Eq ParseErrorCustom
+-&gt; (ParseErrorCustom -&gt; ParseErrorCustom -&gt; Ordering)
+-&gt; (ParseErrorCustom -&gt; ParseErrorCustom -&gt; Bool)
+-&gt; (ParseErrorCustom -&gt; ParseErrorCustom -&gt; Bool)
+-&gt; (ParseErrorCustom -&gt; ParseErrorCustom -&gt; Bool)
+-&gt; (ParseErrorCustom -&gt; ParseErrorCustom -&gt; Bool)
+-&gt; (ParseErrorCustom -&gt; ParseErrorCustom -&gt; ParseErrorCustom)
+-&gt; (ParseErrorCustom -&gt; ParseErrorCustom -&gt; ParseErrorCustom)
+-&gt; Ord ParseErrorCustom
+ParseErrorCustom -&gt; ParseErrorCustom -&gt; Bool
+ParseErrorCustom -&gt; ParseErrorCustom -&gt; Ordering
+ParseErrorCustom -&gt; ParseErrorCustom -&gt; ParseErrorCustom
+forall a.
+Eq a
+-&gt; (a -&gt; a -&gt; Ordering)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; Ord a
+$ccompare :: ParseErrorCustom -&gt; ParseErrorCustom -&gt; Ordering
+compare :: ParseErrorCustom -&gt; ParseErrorCustom -&gt; Ordering
+$c&lt; :: ParseErrorCustom -&gt; ParseErrorCustom -&gt; Bool
+&lt; :: ParseErrorCustom -&gt; ParseErrorCustom -&gt; Bool
+$c&lt;= :: ParseErrorCustom -&gt; ParseErrorCustom -&gt; Bool
+&lt;= :: ParseErrorCustom -&gt; ParseErrorCustom -&gt; Bool
+$c&gt; :: ParseErrorCustom -&gt; ParseErrorCustom -&gt; Bool
+&gt; :: ParseErrorCustom -&gt; ParseErrorCustom -&gt; Bool
+$c&gt;= :: ParseErrorCustom -&gt; ParseErrorCustom -&gt; Bool
+&gt;= :: ParseErrorCustom -&gt; ParseErrorCustom -&gt; Bool
+$cmax :: ParseErrorCustom -&gt; ParseErrorCustom -&gt; ParseErrorCustom
+max :: ParseErrorCustom -&gt; ParseErrorCustom -&gt; ParseErrorCustom
+$cmin :: ParseErrorCustom -&gt; ParseErrorCustom -&gt; ParseErrorCustom
+min :: ParseErrorCustom -&gt; ParseErrorCustom -&gt; ParseErrorCustom
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679138529"><span id="local-6989586621679138539"><span class="annot"><span class="annottext">ParseErrorCustom -&gt; ParseErrorCustom -&gt; Bool
+(ParseErrorCustom -&gt; ParseErrorCustom -&gt; Bool)
+-&gt; (ParseErrorCustom -&gt; ParseErrorCustom -&gt; Bool)
+-&gt; Eq ParseErrorCustom
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: ParseErrorCustom -&gt; ParseErrorCustom -&gt; Bool
+== :: ParseErrorCustom -&gt; ParseErrorCustom -&gt; Bool
+$c/= :: ParseErrorCustom -&gt; ParseErrorCustom -&gt; Bool
+/= :: ParseErrorCustom -&gt; ParseErrorCustom -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-22"></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679138547"><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Error.html#ShowErrorComponent"><span class="hs-identifier hs-type">M.ShowErrorComponent</span></a></span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#ParseErrorCustom"><span class="hs-identifier hs-type">ParseErrorCustom</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-24"></span><span>  </span><span id="local-6989586621679138553"><span class="annot"><span class="annottext">showErrorComponent :: ParseErrorCustom -&gt; [Char]
+</span><a href="#local-6989586621679138553"><span class="hs-identifier hs-var hs-var hs-var hs-var">showErrorComponent</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Parser.Utils.html#UnknownType"><span class="hs-identifier hs-type">UnknownType</span></a></span><span> </span><span id="local-6989586621679138555"><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679138555"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-25"></span><span>    </span><span class="annot"><span class="annottext">[Char]
+</span><span class="hs-string">&quot;Unknown type: type \&quot;&quot;</span></span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679138555"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><span class="hs-string">&quot;\&quot; does not exist&quot;</span></span><span>
+</span><span id="line-26"></span><span>  </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Error.html#showErrorComponent"><span class="hs-identifier hs-var">showErrorComponent</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Parser.Utils.html#InvalidFunctionType"><span class="hs-identifier hs-type">InvalidFunctionType</span></a></span><span> </span><span id="local-6989586621679138556"><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679138556"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span id="local-6989586621679138557"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679138557"><span class="hs-identifier hs-var">t</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-27"></span><span>    </span><span class="annot"><span class="annottext">[Char]
+</span><span class="hs-string">&quot;Invalid Function Type: function \&quot;&quot;</span></span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679138556"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><span class="hs-string">&quot;\&quot; with type \&quot;&quot;</span></span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">Type -&gt; [Char]
+forall a. Show a =&gt; a -&gt; [Char]
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679138557"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><span class="hs-string">&quot;\&quot; is not valid&quot;</span></span><span>
+</span><span id="line-28"></span><span>  </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Error.html#showErrorComponent"><span class="hs-identifier hs-var">showErrorComponent</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Parser.Utils.html#InvalidDefer"><span class="hs-identifier hs-type">InvalidDefer</span></a></span><span> </span><span id="local-6989586621679138559"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138559"><span class="hs-identifier hs-var">e</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-29"></span><span>    </span><span class="annot"><span class="annottext">[Char]
+</span><span class="hs-string">&quot;Invalid Defer: defer \&quot;&quot;</span></span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">Expr -&gt; [Char]
+forall a. Show a =&gt; a -&gt; [Char]
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138559"><span class="hs-identifier hs-var">e</span></a></span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><span class="hs-string">&quot;\&quot; is not valid &quot;</span></span><span>
+</span><span id="line-30"></span><span>
+</span><span id="line-31"></span><span class="annot"><span class="hs-comment">-- | Skips whitespace and comments (starting with `%`). Ensures proper handling of spacing in parsers.</span></span><span>
+</span><span id="line-32"></span><span class="annot"><a href="Ast.Parser.Utils.html#sc"><span class="hs-identifier hs-type">sc</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">Parser</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-33"></span><span id="sc"><span class="annot"><span class="annottext">sc :: Parser ()
+</span><a href="Ast.Parser.Utils.html#sc"><span class="hs-identifier hs-var hs-var">sc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Parser () -&gt; Parser () -&gt; Parser () -&gt; Parser ()
+forall e s (m :: * -&gt; *).
+MonadParsec e s m =&gt;
+m () -&gt; m () -&gt; m () -&gt; m ()
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Lexer.html#space"><span class="hs-identifier hs-var">ML.space</span></a></span><span> </span><span class="annot"><span class="annottext">Parser ()
+forall e s (m :: * -&gt; *).
+(MonadParsec e s m, Token s ~ Char) =&gt;
+m ()
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.html#space1"><span class="hs-identifier hs-var">MC.space1</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Tokens [Char] -&gt; Parser ()
+forall e s (m :: * -&gt; *).
+(MonadParsec e s m, Token s ~ Char) =&gt;
+Tokens s -&gt; m ()
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.Lexer.html#skipLineComment"><span class="hs-identifier hs-var">ML.skipLineComment</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+Tokens [Char]
+</span><span class="hs-string">&quot;%&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Parser () -&gt; Parser ()) -&gt; Parser () -&gt; Parser ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Tokens [Char] -&gt; Tokens [Char] -&gt; Parser ()
+forall e s (m :: * -&gt; *).
+MonadParsec e s m =&gt;
+Tokens s -&gt; Tokens s -&gt; m ()
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.Lexer.html#skipBlockComment"><span class="hs-identifier hs-var">ML.skipBlockComment</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+Tokens [Char]
+</span><span class="hs-string">&quot;%%&quot;</span></span><span> </span><span class="annot"><span class="annottext">[Char]
+Tokens [Char]
+</span><span class="hs-string">&quot;%%&quot;</span></span><span>
+</span><span id="line-34"></span><span>
+</span><span id="line-35"></span><span class="annot"><span class="hs-comment">-- | Wraps a parser to consume trailing whitespace, returning the result of the inner parser.</span></span><span>
+</span><span id="line-36"></span><span id="local-6989586621679138278"><span class="annot"><a href="Ast.Parser.Utils.html#lexeme"><span class="hs-identifier hs-type">lexeme</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">Parser</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679138278"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">Parser</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679138278"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-37"></span><span id="lexeme"><span class="annot"><span class="annottext">lexeme :: forall a. Parser a -&gt; Parser a
+</span><a href="Ast.Parser.Utils.html#lexeme"><span class="hs-identifier hs-var hs-var">lexeme</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Parser ()
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+forall e s (m :: * -&gt; *) a. MonadParsec e s m =&gt; m () -&gt; m a -&gt; m a
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Lexer.html#lexeme"><span class="hs-identifier hs-var">ML.lexeme</span></a></span><span> </span><span class="annot"><span class="annottext">Parser ()
+</span><a href="Ast.Parser.Utils.html#sc"><span class="hs-identifier hs-var">sc</span></a></span><span>
+</span><span id="line-38"></span><span>
+</span><span id="line-39"></span><span class="annot"><span class="hs-comment">-- | Parses a specific symbol (e.g., &quot;+&quot;, &quot;-&quot;) while skipping trailing whitespace.</span></span><span>
+</span><span id="line-40"></span><span class="annot"><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-type">symbol</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">Parser</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-41"></span><span id="symbol"><span class="annot"><span class="annottext">symbol :: [Char] -&gt; Parser [Char]
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var hs-var">symbol</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Parser ()
+-&gt; Tokens [Char]
+-&gt; ParsecT
+     ParseErrorCustom [Char] (StateT ParserState IO) (Tokens [Char])
+forall e s (m :: * -&gt; *).
+MonadParsec e s m =&gt;
+m () -&gt; Tokens s -&gt; m (Tokens s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Lexer.html#symbol"><span class="hs-identifier hs-var">ML.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">Parser ()
+</span><a href="Ast.Parser.Utils.html#sc"><span class="hs-identifier hs-var">sc</span></a></span><span>
+</span><span id="line-42"></span><span>
+</span><span id="line-43"></span><span class="annot"><span class="hs-comment">-- | Tries each parser in the list sequentially, allowing backtracking for all but the last parser.</span></span><span>
+</span><span id="line-44"></span><span id="local-6989586621679138287"><span class="annot"><a href="Ast.Parser.Utils.html#triedChoice"><span class="hs-identifier hs-type">triedChoice</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">Parser</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679138287"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">Parser</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679138287"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-45"></span><span id="triedChoice"><span class="annot"><span class="annottext">triedChoice :: forall a. [Parser a] -&gt; Parser a
+</span><a href="Ast.Parser.Utils.html#triedChoice"><span class="hs-identifier hs-var hs-var">triedChoice</span></a></span></span><span> </span><span id="local-6989586621679138573"><span class="annot"><span class="annottext">[Parser a]
+</span><a href="#local-6989586621679138573"><span class="hs-identifier hs-var">ps</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-46"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679138582"><span class="annot"><span class="annottext">triedPs :: [Parser a]
+</span><a href="#local-6989586621679138582"><span class="hs-identifier hs-var hs-var">triedPs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Parser a -&gt; Parser a) -&gt; [Parser a] -&gt; [Parser a]
+forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
+</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="annot"><span class="annottext">Parser a -&gt; Parser a
+forall a. Parser a -&gt; Parser a
+forall e s (m :: * -&gt; *) a. MonadParsec e s m =&gt; m a -&gt; m a
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Class.html#try"><span class="hs-identifier hs-var">M.try</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Parser a] -&gt; [Parser a]
+forall a. HasCallStack =&gt; [a] -&gt; [a]
+</span><span class="hs-identifier hs-var">init</span></span><span> </span><span class="annot"><span class="annottext">[Parser a]
+</span><a href="#local-6989586621679138573"><span class="hs-identifier hs-var">ps</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[Parser a] -&gt; [Parser a] -&gt; [Parser a]
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">[Parser a] -&gt; Parser a
+forall a. HasCallStack =&gt; [a] -&gt; a
+</span><span class="hs-identifier hs-var">last</span></span><span> </span><span class="annot"><span class="annottext">[Parser a]
+</span><a href="#local-6989586621679138573"><span class="hs-identifier hs-var">ps</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-47"></span><span>   </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">[Parser a] -&gt; Parser a
+forall (f :: * -&gt; *) (m :: * -&gt; *) a.
+(Foldable f, Alternative m) =&gt;
+f (m a) -&gt; m a
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Applicative.Combinators.html#choice"><span class="hs-identifier hs-var">M.choice</span></a></span><span> </span><span class="annot"><span class="annottext">[Parser a]
+</span><a href="#local-6989586621679138582"><span class="hs-identifier hs-var">triedPs</span></a></span><span>
+</span><span id="line-48"></span><span>
+</span><span id="line-49"></span><span class="annot"><span class="hs-comment">-- | An identifier in our language syntax</span></span><span>
+</span><span id="line-50"></span><span class="annot"><a href="Ast.Parser.Utils.html#identifier"><span class="hs-identifier hs-type">identifier</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">Parser</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-51"></span><span id="identifier"><span class="annot"><span class="annottext">identifier :: Parser [Char]
+</span><a href="Ast.Parser.Utils.html#identifier"><span class="hs-identifier hs-var hs-var">identifier</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Parser [Char] -&gt; Parser [Char]
+forall a. Parser a -&gt; Parser a
+</span><a href="Ast.Parser.Utils.html#lexeme"><span class="hs-identifier hs-var">lexeme</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="hs-glyph">:</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Char -&gt; ShowS)
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) ShowS
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+ParsecT
+  ParseErrorCustom [Char] (StateT ParserState IO) (Token [Char])
+forall e s (m :: * -&gt; *).
+(MonadParsec e s m, Token s ~ Char) =&gt;
+m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.html#letterChar"><span class="hs-identifier hs-var">MC.letterChar</span></a></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+forall a.
+ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f a -&gt; f a
+</span><span class="hs-operator hs-var">M.&lt;|&gt;</span></span><span> </span><span class="annot"><span class="annottext">[Token [Char]]
+-&gt; ParsecT
+     ParseErrorCustom [Char] (StateT ParserState IO) (Token [Char])
+forall (f :: * -&gt; *) e s (m :: * -&gt; *).
+(Foldable f, MonadParsec e s m) =&gt;
+f (Token s) -&gt; m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.html#oneOf"><span class="hs-identifier hs-var">M.oneOf</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+[Token [Char]]
+</span><span class="hs-string">&quot;$_&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom [Char] (StateT ParserState IO) ShowS
+-&gt; Parser [Char] -&gt; Parser [Char]
+forall a b.
+ParsecT ParseErrorCustom [Char] (StateT ParserState IO) (a -&gt; b)
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;*&gt;</span></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+-&gt; Parser [Char]
+forall (m :: * -&gt; *) a. MonadPlus m =&gt; m a -&gt; m [a]
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Monad.Combinators.html#many"><span class="hs-identifier hs-var">M.many</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+ParsecT
+  ParseErrorCustom [Char] (StateT ParserState IO) (Token [Char])
+forall e s (m :: * -&gt; *).
+(MonadParsec e s m, Token s ~ Char) =&gt;
+m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.html#alphaNumChar"><span class="hs-identifier hs-var">MC.alphaNumChar</span></a></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+forall a.
+ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f a -&gt; f a
+</span><span class="hs-operator hs-var">M.&lt;|&gt;</span></span><span> </span><span class="annot"><span class="annottext">[Token [Char]]
+-&gt; ParsecT
+     ParseErrorCustom [Char] (StateT ParserState IO) (Token [Char])
+forall (f :: * -&gt; *) e s (m :: * -&gt; *).
+(Foldable f, MonadParsec e s m) =&gt;
+f (Token s) -&gt; m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.html#oneOf"><span class="hs-identifier hs-var">M.oneOf</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+[Token [Char]]
+</span><span class="hs-string">&quot;$_&quot;</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-52"></span><span>
+</span><span id="line-53"></span><span class="annot"><span class="hs-comment">-- | Gets the SrcLoc</span></span><span>
+</span><span id="line-54"></span><span class="annot"><a href="Ast.Parser.Utils.html#parseSrcLoc"><span class="hs-identifier hs-type">parseSrcLoc</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">Parser</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">AT.SrcLoc</span></a></span><span>
+</span><span id="line-55"></span><span id="parseSrcLoc"><span class="annot"><span class="annottext">parseSrcLoc :: Parser SrcLoc
+</span><a href="Ast.Parser.Utils.html#parseSrcLoc"><span class="hs-identifier hs-var hs-var">parseSrcLoc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-56"></span><span>  </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Pos.html#SourcePos"><span class="hs-identifier hs-type">MP.SourcePos</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">sourceName :: SourcePos -&gt; [Char]
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Pos.html#sourceName"><span class="hs-identifier hs-var">MP.sourceName</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621679138597"><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679138597"><span class="hs-identifier hs-var">_sourceName</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">sourceLine :: SourcePos -&gt; Pos
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Pos.html#sourceLine"><span class="hs-identifier hs-var">MP.sourceLine</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621679138599"><span class="annot"><span class="annottext">Pos
+</span><a href="#local-6989586621679138599"><span class="hs-identifier hs-var">_sourceLine</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">sourceColumn :: SourcePos -&gt; Pos
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Pos.html#sourceColumn"><span class="hs-identifier hs-var">MP.sourceColumn</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621679138601"><span class="annot"><span class="annottext">Pos
+</span><a href="#local-6989586621679138601"><span class="hs-identifier hs-var">_sourceColumn</span></a></span></span><span class="hs-special">}</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom [Char] (StateT ParserState IO) SourcePos
+forall s e (m :: * -&gt; *).
+(TraversableStream s, MonadParsec e s m) =&gt;
+m SourcePos
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.html#getSourcePos"><span class="hs-identifier hs-var">M.getSourcePos</span></a></span><span>
+</span><span id="line-57"></span><span>  </span><span class="annot"><span class="annottext">SrcLoc -&gt; Parser SrcLoc
+forall a.
+a -&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">(SrcLoc -&gt; Parser SrcLoc) -&gt; SrcLoc -&gt; Parser SrcLoc
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">AT.SrcLoc</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">srcFile :: [Char]
+</span><a href="Ast.Types.html#srcFile"><span class="hs-identifier hs-var">AT.srcFile</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679138597"><span class="hs-identifier hs-var">_sourceName</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">srcLine :: Int
+</span><a href="Ast.Types.html#srcLine"><span class="hs-identifier hs-var">AT.srcLine</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Pos -&gt; Int
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Pos.html#unPos"><span class="hs-identifier hs-var">MP.unPos</span></a></span><span> </span><span class="annot"><span class="annottext">Pos
+</span><a href="#local-6989586621679138599"><span class="hs-identifier hs-var">_sourceLine</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">srcCol :: Int
+</span><a href="Ast.Types.html#srcCol"><span class="hs-identifier hs-var">AT.srcCol</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Pos -&gt; Int
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Pos.html#unPos"><span class="hs-identifier hs-var">MP.unPos</span></a></span><span> </span><span class="annot"><span class="annottext">Pos
+</span><a href="#local-6989586621679138601"><span class="hs-identifier hs-var">_sourceColumn</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-58"></span><span>
+</span><span id="line-59"></span><span class="annot"><span class="hs-comment">-- | Creates a prefix operator parser.</span></span><span>
+</span><span id="line-60"></span><span class="annot"><a href="Ast.Parser.Utils.html#prefix"><span class="hs-identifier hs-type">prefix</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">AT.SrcLoc</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Monad.Combinators.Expr.html#Operator"><span class="hs-identifier hs-type">CE.Operator</span></a></span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">Parser</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span>
+</span><span id="line-61"></span><span id="prefix"><span class="annot"><span class="annottext">prefix :: [Char]
+-&gt; (SrcLoc -&gt; Expr -&gt; Expr)
+-&gt; Operator
+     (ParsecT ParseErrorCustom [Char] (StateT ParserState IO)) Expr
+</span><a href="Ast.Parser.Utils.html#prefix"><span class="hs-identifier hs-var hs-var">prefix</span></a></span></span><span> </span><span id="local-6989586621679138609"><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679138609"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span id="local-6989586621679138610"><span class="annot"><span class="annottext">SrcLoc -&gt; Expr -&gt; Expr
+</span><a href="#local-6989586621679138610"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Parser (Expr -&gt; Expr)
+-&gt; Operator
+     (ParsecT ParseErrorCustom [Char] (StateT ParserState IO)) Expr
+forall (m :: * -&gt; *) a. m (a -&gt; a) -&gt; Operator m a
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Monad.Combinators.Expr.html#Prefix"><span class="hs-identifier hs-var">CE.Prefix</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">SrcLoc -&gt; Expr -&gt; Expr
+</span><a href="#local-6989586621679138610"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">(SrcLoc -&gt; Expr -&gt; Expr) -&gt; Parser SrcLoc -&gt; Parser (Expr -&gt; Expr)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Parser SrcLoc
+</span><a href="Ast.Parser.Utils.html#parseSrcLoc"><span class="hs-identifier hs-var">parseSrcLoc</span></a></span><span> </span><span class="annot"><span class="annottext">Parser SrcLoc -&gt; Parser [Char] -&gt; Parser SrcLoc
+forall a b. Parser a -&gt; Parser b -&gt; Parser a
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f a -&gt; f b -&gt; f a
+</span><span class="hs-operator hs-var">&lt;*</span></span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; Parser [Char]
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">symbol</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679138609"><span class="hs-identifier hs-var">name</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-62"></span><span>
+</span><span id="line-63"></span><span class="annot"><span class="hs-comment">-- | Creates a postfix operator parser.</span></span><span>
+</span><span id="line-64"></span><span class="annot"><a href="Ast.Parser.Utils.html#postfix"><span class="hs-identifier hs-type">postfix</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">AT.SrcLoc</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Monad.Combinators.Expr.html#Operator"><span class="hs-identifier hs-type">CE.Operator</span></a></span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">Parser</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span>
+</span><span id="line-65"></span><span id="postfix"><span class="annot"><span class="annottext">postfix :: [Char]
+-&gt; (SrcLoc -&gt; Expr -&gt; Expr)
+-&gt; Operator
+     (ParsecT ParseErrorCustom [Char] (StateT ParserState IO)) Expr
+</span><a href="Ast.Parser.Utils.html#postfix"><span class="hs-identifier hs-var hs-var">postfix</span></a></span></span><span> </span><span id="local-6989586621679138614"><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679138614"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span id="local-6989586621679138615"><span class="annot"><span class="annottext">SrcLoc -&gt; Expr -&gt; Expr
+</span><a href="#local-6989586621679138615"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Parser (Expr -&gt; Expr)
+-&gt; Operator
+     (ParsecT ParseErrorCustom [Char] (StateT ParserState IO)) Expr
+forall (m :: * -&gt; *) a. m (a -&gt; a) -&gt; Operator m a
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Monad.Combinators.Expr.html#Postfix"><span class="hs-identifier hs-var">CE.Postfix</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">SrcLoc -&gt; Expr -&gt; Expr
+</span><a href="#local-6989586621679138615"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">(SrcLoc -&gt; Expr -&gt; Expr) -&gt; Parser SrcLoc -&gt; Parser (Expr -&gt; Expr)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Parser SrcLoc
+</span><a href="Ast.Parser.Utils.html#parseSrcLoc"><span class="hs-identifier hs-var">parseSrcLoc</span></a></span><span> </span><span class="annot"><span class="annottext">Parser SrcLoc -&gt; Parser [Char] -&gt; Parser SrcLoc
+forall a b. Parser a -&gt; Parser b -&gt; Parser a
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f a -&gt; f b -&gt; f a
+</span><span class="hs-operator hs-var">&lt;*</span></span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; Parser [Char]
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">symbol</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679138614"><span class="hs-identifier hs-var">name</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-66"></span><span>
+</span><span id="line-67"></span><span class="annot"><span class="hs-comment">-- | Helper functions to define operators</span></span><span>
+</span><span id="line-68"></span><span class="annot"><a href="Ast.Parser.Utils.html#binary"><span class="hs-identifier hs-type">binary</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">AT.SrcLoc</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Monad.Combinators.Expr.html#Operator"><span class="hs-identifier hs-type">CE.Operator</span></a></span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">Parser</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span>
+</span><span id="line-69"></span><span id="binary"><span class="annot"><span class="annottext">binary :: [Char]
+-&gt; (SrcLoc -&gt; Expr -&gt; Expr -&gt; Expr)
+-&gt; Operator
+     (ParsecT ParseErrorCustom [Char] (StateT ParserState IO)) Expr
+</span><a href="Ast.Parser.Utils.html#binary"><span class="hs-identifier hs-var hs-var">binary</span></a></span></span><span> </span><span id="local-6989586621679138618"><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679138618"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span id="local-6989586621679138619"><span class="annot"><span class="annottext">SrcLoc -&gt; Expr -&gt; Expr -&gt; Expr
+</span><a href="#local-6989586621679138619"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Parser (Expr -&gt; Expr -&gt; Expr)
+-&gt; Operator
+     (ParsecT ParseErrorCustom [Char] (StateT ParserState IO)) Expr
+forall (m :: * -&gt; *) a. m (a -&gt; a -&gt; a) -&gt; Operator m a
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Monad.Combinators.Expr.html#InfixL"><span class="hs-identifier hs-var">CE.InfixL</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">SrcLoc -&gt; Expr -&gt; Expr -&gt; Expr
+</span><a href="#local-6989586621679138619"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">(SrcLoc -&gt; Expr -&gt; Expr -&gt; Expr)
+-&gt; Parser SrcLoc -&gt; Parser (Expr -&gt; Expr -&gt; Expr)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Parser SrcLoc
+</span><a href="Ast.Parser.Utils.html#parseSrcLoc"><span class="hs-identifier hs-var">parseSrcLoc</span></a></span><span> </span><span class="annot"><span class="annottext">Parser SrcLoc -&gt; Parser [Char] -&gt; Parser SrcLoc
+forall a b. Parser a -&gt; Parser b -&gt; Parser a
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f a -&gt; f b -&gt; f a
+</span><span class="hs-operator hs-var">&lt;*</span></span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; Parser [Char]
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">symbol</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679138618"><span class="hs-identifier hs-var">name</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-70"></span><span>
+</span><span id="line-71"></span><span class="hs-comment">-- | Parses a boolean value (`true` or `false`).</span><span>
+</span><span id="line-72"></span><span class="hs-comment">-- Returns a `Bool`.</span><span>
+</span><span id="line-73"></span><span class="annot"><a href="Ast.Parser.Utils.html#parseBool"><span class="hs-identifier hs-type">parseBool</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">Parser</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span>
+</span><span id="line-74"></span><span id="parseBool"><span class="annot"><span class="annottext">parseBool :: Parser Bool
+</span><a href="Ast.Parser.Utils.html#parseBool"><span class="hs-identifier hs-var hs-var">parseBool</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">True</span></span><span> </span><span class="annot"><span class="annottext">Bool
+-&gt; ParsecT
+     ParseErrorCustom [Char] (StateT ParserState IO) (Tokens [Char])
+-&gt; Parser Bool
+forall a b.
+a
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+forall (f :: * -&gt; *) a b. Functor f =&gt; a -&gt; f b -&gt; f a
+</span><span class="hs-operator hs-var">&lt;$</span></span><span> </span><span class="annot"><span class="annottext">Tokens [Char]
+-&gt; ParsecT
+     ParseErrorCustom [Char] (StateT ParserState IO) (Tokens [Char])
+forall e s (m :: * -&gt; *).
+MonadParsec e s m =&gt;
+Tokens s -&gt; m (Tokens s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Common.html#string"><span class="hs-identifier hs-var">MC.string</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+Tokens [Char]
+</span><span class="hs-string">&quot;true&quot;</span></span><span> </span><span class="annot"><span class="annottext">Parser Bool -&gt; Parser Bool -&gt; Parser Bool
+forall a.
+ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f a -&gt; f a
+</span><span class="hs-operator hs-var">M.&lt;|&gt;</span></span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">False</span></span><span> </span><span class="annot"><span class="annottext">Bool
+-&gt; ParsecT
+     ParseErrorCustom [Char] (StateT ParserState IO) (Tokens [Char])
+-&gt; Parser Bool
+forall a b.
+a
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+forall (f :: * -&gt; *) a b. Functor f =&gt; a -&gt; f b -&gt; f a
+</span><span class="hs-operator hs-var">&lt;$</span></span><span> </span><span class="annot"><span class="annottext">Tokens [Char]
+-&gt; ParsecT
+     ParseErrorCustom [Char] (StateT ParserState IO) (Tokens [Char])
+forall e s (m :: * -&gt; *).
+MonadParsec e s m =&gt;
+Tokens s -&gt; m (Tokens s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Common.html#string"><span class="hs-identifier hs-var">MC.string</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+Tokens [Char]
+</span><span class="hs-string">&quot;false&quot;</span></span><span>
+</span><span id="line-75"></span><span>
+</span><span id="line-76"></span><span class="annot"><span class="hs-comment">-- | Parses a character in a string literal, supporting escape sequences.</span></span><span>
+</span><span id="line-77"></span><span class="annot"><a href="Ast.Parser.Utils.html#parseStringChar"><span class="hs-identifier hs-type">parseStringChar</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">Parser</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Char</span></span><span>
+</span><span id="line-78"></span><span id="parseStringChar"><span class="annot"><span class="annottext">parseStringChar :: ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+</span><a href="Ast.Parser.Utils.html#parseStringChar"><span class="hs-identifier hs-var hs-var">parseStringChar</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-79"></span><span>  </span><span class="annot"><span class="annottext">[ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char]
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+forall (f :: * -&gt; *) (m :: * -&gt; *) a.
+(Foldable f, Alternative m) =&gt;
+f (m a) -&gt; m a
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Applicative.Combinators.html#choice"><span class="hs-identifier hs-var">M.choice</span></a></span><span>
+</span><span id="line-80"></span><span>    </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+</span><a href="Ast.Parser.Utils.html#parseEscapeSequence"><span class="hs-identifier hs-var">parseEscapeSequence</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-81"></span><span>      </span><span class="annot"><span class="annottext">[Token [Char]]
+-&gt; ParsecT
+     ParseErrorCustom [Char] (StateT ParserState IO) (Token [Char])
+forall (f :: * -&gt; *) e s (m :: * -&gt; *).
+(Foldable f, MonadParsec e s m) =&gt;
+f (Token s) -&gt; m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.html#noneOf"><span class="hs-identifier hs-var">M.noneOf</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'&quot;'</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'\\'</span></span><span class="hs-special">]</span><span>
+</span><span id="line-82"></span><span>    </span><span class="hs-special">]</span><span>
+</span><span id="line-83"></span><span>
+</span><span id="line-84"></span><span class="annot"><span class="hs-comment">-- | Parses an escape sequence in a string literal (e.g., `\n`, `\t`, `\xFF`).</span></span><span>
+</span><span id="line-85"></span><span class="annot"><a href="Ast.Parser.Utils.html#parseEscapeSequence"><span class="hs-identifier hs-type">parseEscapeSequence</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">Parser</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Char</span></span><span>
+</span><span id="line-86"></span><span id="parseEscapeSequence"><span class="annot"><span class="annottext">parseEscapeSequence :: ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+</span><a href="Ast.Parser.Utils.html#parseEscapeSequence"><span class="hs-identifier hs-var hs-var">parseEscapeSequence</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-87"></span><span>  </span><span class="annot"><span class="annottext">Token [Char]
+-&gt; ParsecT
+     ParseErrorCustom [Char] (StateT ParserState IO) (Token [Char])
+forall e s (m :: * -&gt; *).
+(MonadParsec e s m, Token s ~ Char) =&gt;
+Token s -&gt; m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.html#char"><span class="hs-identifier hs-var">MC.char</span></a></span><span> </span><span class="annot"><span class="annottext">Char
+Token [Char]
+</span><span class="hs-char">'\\'</span></span><span>
+</span><span id="line-88"></span><span>    </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+forall a b.
+ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) b
+forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; m b -&gt; m b
+</span><span class="hs-operator hs-var">&gt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">[ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char]
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+forall (f :: * -&gt; *) (m :: * -&gt; *) a.
+(Foldable f, Alternative m) =&gt;
+f (m a) -&gt; m a
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Applicative.Combinators.html#choice"><span class="hs-identifier hs-var">M.choice</span></a></span><span>
+</span><span id="line-89"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'\a'</span></span><span> </span><span class="annot"><span class="annottext">Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+forall a b.
+a
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+forall (f :: * -&gt; *) a b. Functor f =&gt; a -&gt; f b -&gt; f a
+</span><span class="hs-operator hs-var">&lt;$</span></span><span> </span><span class="annot"><span class="annottext">Token [Char]
+-&gt; ParsecT
+     ParseErrorCustom [Char] (StateT ParserState IO) (Token [Char])
+forall e s (m :: * -&gt; *).
+(MonadParsec e s m, Token s ~ Char) =&gt;
+Token s -&gt; m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.html#char"><span class="hs-identifier hs-var">MC.char</span></a></span><span> </span><span class="annot"><span class="annottext">Char
+Token [Char]
+</span><span class="hs-char">'a'</span></span><span class="hs-special">,</span><span>
+</span><span id="line-90"></span><span>        </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'\b'</span></span><span> </span><span class="annot"><span class="annottext">Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+forall a b.
+a
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+forall (f :: * -&gt; *) a b. Functor f =&gt; a -&gt; f b -&gt; f a
+</span><span class="hs-operator hs-var">&lt;$</span></span><span> </span><span class="annot"><span class="annottext">Token [Char]
+-&gt; ParsecT
+     ParseErrorCustom [Char] (StateT ParserState IO) (Token [Char])
+forall e s (m :: * -&gt; *).
+(MonadParsec e s m, Token s ~ Char) =&gt;
+Token s -&gt; m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.html#char"><span class="hs-identifier hs-var">MC.char</span></a></span><span> </span><span class="annot"><span class="annottext">Char
+Token [Char]
+</span><span class="hs-char">'b'</span></span><span class="hs-special">,</span><span>
+</span><span id="line-91"></span><span>        </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'\f'</span></span><span> </span><span class="annot"><span class="annottext">Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+forall a b.
+a
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+forall (f :: * -&gt; *) a b. Functor f =&gt; a -&gt; f b -&gt; f a
+</span><span class="hs-operator hs-var">&lt;$</span></span><span> </span><span class="annot"><span class="annottext">Token [Char]
+-&gt; ParsecT
+     ParseErrorCustom [Char] (StateT ParserState IO) (Token [Char])
+forall e s (m :: * -&gt; *).
+(MonadParsec e s m, Token s ~ Char) =&gt;
+Token s -&gt; m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.html#char"><span class="hs-identifier hs-var">MC.char</span></a></span><span> </span><span class="annot"><span class="annottext">Char
+Token [Char]
+</span><span class="hs-char">'f'</span></span><span class="hs-special">,</span><span>
+</span><span id="line-92"></span><span>        </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'\n'</span></span><span> </span><span class="annot"><span class="annottext">Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+forall a b.
+a
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+forall (f :: * -&gt; *) a b. Functor f =&gt; a -&gt; f b -&gt; f a
+</span><span class="hs-operator hs-var">&lt;$</span></span><span> </span><span class="annot"><span class="annottext">Token [Char]
+-&gt; ParsecT
+     ParseErrorCustom [Char] (StateT ParserState IO) (Token [Char])
+forall e s (m :: * -&gt; *).
+(MonadParsec e s m, Token s ~ Char) =&gt;
+Token s -&gt; m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.html#char"><span class="hs-identifier hs-var">MC.char</span></a></span><span> </span><span class="annot"><span class="annottext">Char
+Token [Char]
+</span><span class="hs-char">'n'</span></span><span class="hs-special">,</span><span>
+</span><span id="line-93"></span><span>        </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'\r'</span></span><span> </span><span class="annot"><span class="annottext">Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+forall a b.
+a
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+forall (f :: * -&gt; *) a b. Functor f =&gt; a -&gt; f b -&gt; f a
+</span><span class="hs-operator hs-var">&lt;$</span></span><span> </span><span class="annot"><span class="annottext">Token [Char]
+-&gt; ParsecT
+     ParseErrorCustom [Char] (StateT ParserState IO) (Token [Char])
+forall e s (m :: * -&gt; *).
+(MonadParsec e s m, Token s ~ Char) =&gt;
+Token s -&gt; m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.html#char"><span class="hs-identifier hs-var">MC.char</span></a></span><span> </span><span class="annot"><span class="annottext">Char
+Token [Char]
+</span><span class="hs-char">'r'</span></span><span class="hs-special">,</span><span>
+</span><span id="line-94"></span><span>        </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'\t'</span></span><span> </span><span class="annot"><span class="annottext">Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+forall a b.
+a
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+forall (f :: * -&gt; *) a b. Functor f =&gt; a -&gt; f b -&gt; f a
+</span><span class="hs-operator hs-var">&lt;$</span></span><span> </span><span class="annot"><span class="annottext">Token [Char]
+-&gt; ParsecT
+     ParseErrorCustom [Char] (StateT ParserState IO) (Token [Char])
+forall e s (m :: * -&gt; *).
+(MonadParsec e s m, Token s ~ Char) =&gt;
+Token s -&gt; m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.html#char"><span class="hs-identifier hs-var">MC.char</span></a></span><span> </span><span class="annot"><span class="annottext">Char
+Token [Char]
+</span><span class="hs-char">'t'</span></span><span class="hs-special">,</span><span>
+</span><span id="line-95"></span><span>        </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'\v'</span></span><span> </span><span class="annot"><span class="annottext">Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+forall a b.
+a
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+forall (f :: * -&gt; *) a b. Functor f =&gt; a -&gt; f b -&gt; f a
+</span><span class="hs-operator hs-var">&lt;$</span></span><span> </span><span class="annot"><span class="annottext">Token [Char]
+-&gt; ParsecT
+     ParseErrorCustom [Char] (StateT ParserState IO) (Token [Char])
+forall e s (m :: * -&gt; *).
+(MonadParsec e s m, Token s ~ Char) =&gt;
+Token s -&gt; m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.html#char"><span class="hs-identifier hs-var">MC.char</span></a></span><span> </span><span class="annot"><span class="annottext">Char
+Token [Char]
+</span><span class="hs-char">'v'</span></span><span class="hs-special">,</span><span>
+</span><span id="line-96"></span><span>        </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'\\'</span></span><span> </span><span class="annot"><span class="annottext">Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+forall a b.
+a
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+forall (f :: * -&gt; *) a b. Functor f =&gt; a -&gt; f b -&gt; f a
+</span><span class="hs-operator hs-var">&lt;$</span></span><span> </span><span class="annot"><span class="annottext">Token [Char]
+-&gt; ParsecT
+     ParseErrorCustom [Char] (StateT ParserState IO) (Token [Char])
+forall e s (m :: * -&gt; *).
+(MonadParsec e s m, Token s ~ Char) =&gt;
+Token s -&gt; m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.html#char"><span class="hs-identifier hs-var">MC.char</span></a></span><span> </span><span class="annot"><span class="annottext">Char
+Token [Char]
+</span><span class="hs-char">'\\'</span></span><span class="hs-special">,</span><span>
+</span><span id="line-97"></span><span>        </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'\&quot;'</span></span><span> </span><span class="annot"><span class="annottext">Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+forall a b.
+a
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+forall (f :: * -&gt; *) a b. Functor f =&gt; a -&gt; f b -&gt; f a
+</span><span class="hs-operator hs-var">&lt;$</span></span><span> </span><span class="annot"><span class="annottext">Token [Char]
+-&gt; ParsecT
+     ParseErrorCustom [Char] (StateT ParserState IO) (Token [Char])
+forall e s (m :: * -&gt; *).
+(MonadParsec e s m, Token s ~ Char) =&gt;
+Token s -&gt; m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.html#char"><span class="hs-identifier hs-var">MC.char</span></a></span><span> </span><span class="annot"><span class="annottext">Char
+Token [Char]
+</span><span class="hs-char">'&quot;'</span></span><span class="hs-special">,</span><span>
+</span><span id="line-98"></span><span>        </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'\''</span></span><span> </span><span class="annot"><span class="annottext">Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+forall a b.
+a
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+forall (f :: * -&gt; *) a b. Functor f =&gt; a -&gt; f b -&gt; f a
+</span><span class="hs-operator hs-var">&lt;$</span></span><span> </span><span class="annot"><span class="annottext">Token [Char]
+-&gt; ParsecT
+     ParseErrorCustom [Char] (StateT ParserState IO) (Token [Char])
+forall e s (m :: * -&gt; *).
+(MonadParsec e s m, Token s ~ Char) =&gt;
+Token s -&gt; m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.html#char"><span class="hs-identifier hs-var">MC.char</span></a></span><span> </span><span class="annot"><span class="annottext">Char
+Token [Char]
+</span><span class="hs-char">'\''</span></span><span class="hs-special">,</span><span>
+</span><span id="line-99"></span><span>        </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'\0'</span></span><span> </span><span class="annot"><span class="annottext">Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+forall a b.
+a
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+forall (f :: * -&gt; *) a b. Functor f =&gt; a -&gt; f b -&gt; f a
+</span><span class="hs-operator hs-var">&lt;$</span></span><span> </span><span class="annot"><span class="annottext">Token [Char]
+-&gt; ParsecT
+     ParseErrorCustom [Char] (StateT ParserState IO) (Token [Char])
+forall e s (m :: * -&gt; *).
+(MonadParsec e s m, Token s ~ Char) =&gt;
+Token s -&gt; m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.html#char"><span class="hs-identifier hs-var">MC.char</span></a></span><span> </span><span class="annot"><span class="annottext">Char
+Token [Char]
+</span><span class="hs-char">'0'</span></span><span class="hs-special">,</span><span>
+</span><span id="line-100"></span><span>        </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+</span><a href="Ast.Parser.Utils.html#parseHexEscape"><span class="hs-identifier hs-var">parseHexEscape</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-101"></span><span>        </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+</span><a href="Ast.Parser.Utils.html#parseOctalEscape"><span class="hs-identifier hs-var">parseOctalEscape</span></a></span><span>
+</span><span id="line-102"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-103"></span><span>
+</span><span id="line-104"></span><span class="annot"><span class="hs-comment">-- | Parses a hexadecimal escape sequence (e.g., `\xFF`).</span></span><span>
+</span><span id="line-105"></span><span class="annot"><a href="Ast.Parser.Utils.html#parseHexEscape"><span class="hs-identifier hs-type">parseHexEscape</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">Parser</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Char</span></span><span>
+</span><span id="line-106"></span><span id="parseHexEscape"><span class="annot"><span class="annottext">parseHexEscape :: ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+</span><a href="Ast.Parser.Utils.html#parseHexEscape"><span class="hs-identifier hs-var hs-var">parseHexEscape</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-107"></span><span>  </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Token [Char]
+-&gt; ParsecT
+     ParseErrorCustom [Char] (StateT ParserState IO) (Token [Char])
+forall e s (m :: * -&gt; *).
+(MonadParsec e s m, Token s ~ Char) =&gt;
+Token s -&gt; m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.html#char"><span class="hs-identifier hs-var">MC.char</span></a></span><span> </span><span class="annot"><span class="annottext">Char
+Token [Char]
+</span><span class="hs-char">'x'</span></span><span>
+</span><span id="line-108"></span><span>  </span><span id="local-6989586621679138630"><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679138630"><span class="hs-identifier hs-var">digits</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Int
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+-&gt; Parser [Char]
+forall (m :: * -&gt; *) a. Monad m =&gt; Int -&gt; m a -&gt; m [a]
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Monad.Combinators.html#count"><span class="hs-identifier hs-var">M.count</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">2</span></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+</span><a href="Ast.Parser.Utils.html#hexDigit"><span class="hs-identifier hs-var">hexDigit</span></a></span><span>
+</span><span id="line-109"></span><span>  </span><span class="annot"><span class="annottext">Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+forall a.
+a -&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">(Char
+ -&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char)
+-&gt; Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Char
+</span><span class="hs-identifier hs-var">C.chr</span></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; Char) -&gt; Int -&gt; Char
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; Int
+forall a. Read a =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">read</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Char]
+</span><span class="hs-string">&quot;0x&quot;</span></span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679138630"><span class="hs-identifier hs-var">digits</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-110"></span><span>
+</span><span id="line-111"></span><span class="annot"><span class="hs-comment">-- | Parses an octal escape sequence (e.g., `\077`).</span></span><span>
+</span><span id="line-112"></span><span class="annot"><a href="Ast.Parser.Utils.html#parseOctalEscape"><span class="hs-identifier hs-type">parseOctalEscape</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">Parser</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Char</span></span><span>
+</span><span id="line-113"></span><span id="parseOctalEscape"><span class="annot"><span class="annottext">parseOctalEscape :: ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+</span><a href="Ast.Parser.Utils.html#parseOctalEscape"><span class="hs-identifier hs-var hs-var">parseOctalEscape</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-114"></span><span>  </span><span id="local-6989586621679138635"><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679138635"><span class="hs-identifier hs-var">digits</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Int
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+-&gt; Parser [Char]
+forall (m :: * -&gt; *) a. Monad m =&gt; Int -&gt; m a -&gt; m [a]
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Monad.Combinators.html#count"><span class="hs-identifier hs-var">M.count</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">3</span></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+</span><a href="Ast.Parser.Utils.html#octalDigit"><span class="hs-identifier hs-var">octalDigit</span></a></span><span>
+</span><span id="line-115"></span><span>  </span><span class="annot"><span class="annottext">Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+forall a.
+a -&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">(Char
+ -&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char)
+-&gt; Char
+-&gt; ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Char
+</span><span class="hs-identifier hs-var">C.chr</span></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; Char) -&gt; Int -&gt; Char
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; Int
+forall a. Read a =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">read</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Char]
+</span><span class="hs-string">&quot;0o&quot;</span></span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679138635"><span class="hs-identifier hs-var">digits</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-116"></span><span>
+</span><span id="line-117"></span><span class="annot"><span class="hs-comment">-- | Parses a hexadecimal digit (`0-9`, `a-f`, `A-F`).</span></span><span>
+</span><span id="line-118"></span><span class="annot"><a href="Ast.Parser.Utils.html#hexDigit"><span class="hs-identifier hs-type">hexDigit</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">Parser</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Char</span></span><span>
+</span><span id="line-119"></span><span id="hexDigit"><span class="annot"><span class="annottext">hexDigit :: ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+</span><a href="Ast.Parser.Utils.html#hexDigit"><span class="hs-identifier hs-var hs-var">hexDigit</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Token [Char]]
+-&gt; ParsecT
+     ParseErrorCustom [Char] (StateT ParserState IO) (Token [Char])
+forall (f :: * -&gt; *) e s (m :: * -&gt; *).
+(Foldable f, MonadParsec e s m) =&gt;
+f (Token s) -&gt; m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.html#oneOf"><span class="hs-identifier hs-var">M.oneOf</span></a></span><span> </span><span class="annot"><span class="annottext">([Token [Char]]
+ -&gt; ParsecT
+      ParseErrorCustom [Char] (StateT ParserState IO) (Token [Char]))
+-&gt; [Token [Char]]
+-&gt; ParsecT
+     ParseErrorCustom [Char] (StateT ParserState IO) (Token [Char])
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'0'</span></span><span> </span><span class="hs-glyph">..</span><span> </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'9'</span></span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'a'</span></span><span> </span><span class="hs-glyph">..</span><span> </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'f'</span></span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'A'</span></span><span> </span><span class="hs-glyph">..</span><span> </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'F'</span></span><span class="hs-special">]</span><span>
+</span><span id="line-120"></span><span>
+</span><span id="line-121"></span><span class="annot"><span class="hs-comment">-- | Parses an octal digit (`0-7`).</span></span><span>
+</span><span id="line-122"></span><span class="annot"><a href="Ast.Parser.Utils.html#octalDigit"><span class="hs-identifier hs-type">octalDigit</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">Parser</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Char</span></span><span>
+</span><span id="line-123"></span><span id="octalDigit"><span class="annot"><span class="annottext">octalDigit :: ParsecT ParseErrorCustom [Char] (StateT ParserState IO) Char
+</span><a href="Ast.Parser.Utils.html#octalDigit"><span class="hs-identifier hs-var hs-var">octalDigit</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Token [Char]]
+-&gt; ParsecT
+     ParseErrorCustom [Char] (StateT ParserState IO) (Token [Char])
+forall (f :: * -&gt; *) e s (m :: * -&gt; *).
+(Foldable f, MonadParsec e s m) =&gt;
+f (Token s) -&gt; m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.html#oneOf"><span class="hs-identifier hs-var">M.oneOf</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'0'</span></span><span> </span><span class="hs-glyph">..</span><span> </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'7'</span></span><span class="hs-special">]</span><span>
+</span><span id="line-124"></span><span>
+</span><span id="line-125"></span><span class="annot"><span class="hs-comment">-- | A default `SrcLoc` for normalization.</span></span><span>
+</span><span id="line-126"></span><span class="annot"><a href="Ast.Parser.Utils.html#normalizeLoc"><span class="hs-identifier hs-type">normalizeLoc</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">AT.SrcLoc</span></a></span><span>
+</span><span id="line-127"></span><span id="normalizeLoc"><span class="annot"><span class="annottext">normalizeLoc :: SrcLoc
+</span><a href="Ast.Parser.Utils.html#normalizeLoc"><span class="hs-identifier hs-var hs-var">normalizeLoc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; Int -&gt; Int -&gt; SrcLoc
+</span><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-var">AT.SrcLoc</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><span class="hs-string">&quot;&quot;</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">0</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">0</span></span><span>
+</span><span id="line-128"></span><span>
+</span><span id="line-129"></span><span class="hs-comment">-- | Normalizes expressions by resetting their source locations.</span><span>
+</span><span id="line-130"></span><span class="hs-comment">-- Ensures consistent formatting and comparison of expressions.</span><span>
+</span><span id="line-131"></span><span class="annot"><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-type">normalizeExpr</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span>
+</span><span id="line-132"></span><span id="normalizeExpr"><span class="annot"><span class="annottext">normalizeExpr :: Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var hs-var">normalizeExpr</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#Lit"><span class="hs-identifier hs-type">AT.Lit</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679138640"><span class="annot"><span class="annottext">Literal
+</span><a href="#local-6989586621679138640"><span class="hs-identifier hs-var">lit</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; Literal -&gt; Expr
+</span><a href="Ast.Types.html#Lit"><span class="hs-identifier hs-var">AT.Lit</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="Ast.Parser.Utils.html#normalizeLoc"><span class="hs-identifier hs-var">normalizeLoc</span></a></span><span> </span><span class="annot"><span class="annottext">Literal
+</span><a href="#local-6989586621679138640"><span class="hs-identifier hs-var">lit</span></a></span><span>
+</span><span id="line-133"></span><span class="annot"><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#Var"><span class="hs-identifier hs-type">AT.Var</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679138642"><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679138642"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span id="local-6989586621679138643"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679138643"><span class="hs-identifier hs-var">t</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; [Char] -&gt; Type -&gt; Expr
+</span><a href="Ast.Types.html#Var"><span class="hs-identifier hs-var">AT.Var</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="Ast.Parser.Utils.html#normalizeLoc"><span class="hs-identifier hs-var">normalizeLoc</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679138642"><span class="hs-identifier hs-var">name</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679138643"><span class="hs-identifier hs-var">t</span></a></span><span>
+</span><span id="line-134"></span><span class="annot"><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#Function"><span class="hs-identifier hs-type">AT.Function</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679138645"><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679138645"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span id="local-6989586621679138646"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679138646"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679138647"><span class="annot"><span class="annottext">[[Char]]
+</span><a href="#local-6989586621679138647"><span class="hs-identifier hs-var">params</span></a></span></span><span> </span><span id="local-6989586621679138648"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138648"><span class="hs-identifier hs-var">body</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; [Char] -&gt; Type -&gt; [[Char]] -&gt; Expr -&gt; Expr
+</span><a href="Ast.Types.html#Function"><span class="hs-identifier hs-var">AT.Function</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="Ast.Parser.Utils.html#normalizeLoc"><span class="hs-identifier hs-var">normalizeLoc</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679138645"><span class="hs-identifier hs-var">name</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679138646"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">[[Char]]
+</span><a href="#local-6989586621679138647"><span class="hs-identifier hs-var">params</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138648"><span class="hs-identifier hs-var">body</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-135"></span><span class="annot"><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#Declaration"><span class="hs-identifier hs-type">AT.Declaration</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679138650"><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679138650"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span id="local-6989586621679138651"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679138651"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679138652"><span class="annot"><span class="annottext">Maybe Expr
+</span><a href="#local-6989586621679138652"><span class="hs-identifier hs-var">initVal</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; [Char] -&gt; Type -&gt; Maybe Expr -&gt; Expr
+</span><a href="Ast.Types.html#Declaration"><span class="hs-identifier hs-var">AT.Declaration</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="Ast.Parser.Utils.html#normalizeLoc"><span class="hs-identifier hs-var">normalizeLoc</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679138650"><span class="hs-identifier hs-var">name</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679138651"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Expr -&gt; Expr) -&gt; Maybe Expr -&gt; Maybe Expr
+forall a b. (a -&gt; b) -&gt; Maybe a -&gt; Maybe b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Expr
+</span><a href="#local-6989586621679138652"><span class="hs-identifier hs-var">initVal</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-136"></span><span class="annot"><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#Assignment"><span class="hs-identifier hs-type">AT.Assignment</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679138654"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138654"><span class="hs-identifier hs-var">target</span></a></span></span><span> </span><span id="local-6989586621679138655"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138655"><span class="hs-identifier hs-var">value</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; Expr -&gt; Expr -&gt; Expr
+</span><a href="Ast.Types.html#Assignment"><span class="hs-identifier hs-var">AT.Assignment</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="Ast.Parser.Utils.html#normalizeLoc"><span class="hs-identifier hs-var">normalizeLoc</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138654"><span class="hs-identifier hs-var">target</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138655"><span class="hs-identifier hs-var">value</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-137"></span><span class="annot"><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#Call"><span class="hs-identifier hs-type">AT.Call</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679138657"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138657"><span class="hs-identifier hs-var">func</span></a></span></span><span> </span><span id="local-6989586621679138658"><span class="annot"><span class="annottext">[Expr]
+</span><a href="#local-6989586621679138658"><span class="hs-identifier hs-var">args</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; Expr -&gt; [Expr] -&gt; Expr
+</span><a href="Ast.Types.html#Call"><span class="hs-identifier hs-var">AT.Call</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="Ast.Parser.Utils.html#normalizeLoc"><span class="hs-identifier hs-var">normalizeLoc</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138657"><span class="hs-identifier hs-var">func</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Expr -&gt; Expr) -&gt; [Expr] -&gt; [Expr]
+forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
+</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">[Expr]
+</span><a href="#local-6989586621679138658"><span class="hs-identifier hs-var">args</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-138"></span><span class="annot"><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#If"><span class="hs-identifier hs-type">AT.If</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679138660"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138660"><span class="hs-identifier hs-var">cond</span></a></span></span><span> </span><span id="local-6989586621679138661"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138661"><span class="hs-identifier hs-var">thenBranch</span></a></span></span><span> </span><span id="local-6989586621679138662"><span class="annot"><span class="annottext">Maybe Expr
+</span><a href="#local-6989586621679138662"><span class="hs-identifier hs-var">elseBranch</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; Expr -&gt; Expr -&gt; Maybe Expr -&gt; Expr
+</span><a href="Ast.Types.html#If"><span class="hs-identifier hs-var">AT.If</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="Ast.Parser.Utils.html#normalizeLoc"><span class="hs-identifier hs-var">normalizeLoc</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138660"><span class="hs-identifier hs-var">cond</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138661"><span class="hs-identifier hs-var">thenBranch</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Expr -&gt; Expr) -&gt; Maybe Expr -&gt; Maybe Expr
+forall a b. (a -&gt; b) -&gt; Maybe a -&gt; Maybe b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Expr
+</span><a href="#local-6989586621679138662"><span class="hs-identifier hs-var">elseBranch</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-139"></span><span class="annot"><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#Block"><span class="hs-identifier hs-type">AT.Block</span></a></span><span> </span><span id="local-6989586621679138664"><span class="annot"><span class="annottext">[Expr]
+</span><a href="#local-6989586621679138664"><span class="hs-identifier hs-var">exprs</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Expr] -&gt; Expr
+</span><a href="Ast.Types.html#Block"><span class="hs-identifier hs-var">AT.Block</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Expr -&gt; Expr) -&gt; [Expr] -&gt; [Expr]
+forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
+</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">[Expr]
+</span><a href="#local-6989586621679138664"><span class="hs-identifier hs-var">exprs</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-140"></span><span class="annot"><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#Return"><span class="hs-identifier hs-type">AT.Return</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679138666"><span class="annot"><span class="annottext">Maybe Expr
+</span><a href="#local-6989586621679138666"><span class="hs-identifier hs-var">value</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; Maybe Expr -&gt; Expr
+</span><a href="Ast.Types.html#Return"><span class="hs-identifier hs-var">AT.Return</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="Ast.Parser.Utils.html#normalizeLoc"><span class="hs-identifier hs-var">normalizeLoc</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Expr -&gt; Expr) -&gt; Maybe Expr -&gt; Maybe Expr
+forall a b. (a -&gt; b) -&gt; Maybe a -&gt; Maybe b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Expr
+</span><a href="#local-6989586621679138666"><span class="hs-identifier hs-var">value</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-141"></span><span class="annot"><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#Op"><span class="hs-identifier hs-type">AT.Op</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679138668"><span class="annot"><span class="annottext">Operation
+</span><a href="#local-6989586621679138668"><span class="hs-identifier hs-var">op</span></a></span></span><span> </span><span id="local-6989586621679138669"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138669"><span class="hs-identifier hs-var">e1</span></a></span></span><span> </span><span id="local-6989586621679138670"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138670"><span class="hs-identifier hs-var">e2</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; Operation -&gt; Expr -&gt; Expr -&gt; Expr
+</span><a href="Ast.Types.html#Op"><span class="hs-identifier hs-var">AT.Op</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="Ast.Parser.Utils.html#normalizeLoc"><span class="hs-identifier hs-var">normalizeLoc</span></a></span><span> </span><span class="annot"><span class="annottext">Operation
+</span><a href="#local-6989586621679138668"><span class="hs-identifier hs-var">op</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138669"><span class="hs-identifier hs-var">e1</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138670"><span class="hs-identifier hs-var">e2</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-142"></span><span class="annot"><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#UnaryOp"><span class="hs-identifier hs-type">AT.UnaryOp</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679138672"><span class="annot"><span class="annottext">UnaryOperation
+</span><a href="#local-6989586621679138672"><span class="hs-identifier hs-var">op</span></a></span></span><span> </span><span id="local-6989586621679138673"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138673"><span class="hs-identifier hs-var">e</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; UnaryOperation -&gt; Expr -&gt; Expr
+</span><a href="Ast.Types.html#UnaryOp"><span class="hs-identifier hs-var">AT.UnaryOp</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="Ast.Parser.Utils.html#normalizeLoc"><span class="hs-identifier hs-var">normalizeLoc</span></a></span><span> </span><span class="annot"><span class="annottext">UnaryOperation
+</span><a href="#local-6989586621679138672"><span class="hs-identifier hs-var">op</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138673"><span class="hs-identifier hs-var">e</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-143"></span><span class="annot"><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#From"><span class="hs-identifier hs-type">AT.From</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679138675"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138675"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span id="local-6989586621679138676"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138676"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span id="local-6989586621679138677"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138677"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span id="local-6989586621679138678"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138678"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span id="local-6989586621679138679"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138679"><span class="hs-identifier hs-var">b</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; Expr -&gt; Expr -&gt; Expr -&gt; Expr -&gt; Expr -&gt; Expr
+</span><a href="Ast.Types.html#From"><span class="hs-identifier hs-var">AT.From</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="Ast.Parser.Utils.html#normalizeLoc"><span class="hs-identifier hs-var">normalizeLoc</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138675"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138676"><span class="hs-identifier hs-var">e</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138677"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138678"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138679"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-144"></span><span class="annot"><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#While"><span class="hs-identifier hs-type">AT.While</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679138681"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138681"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span id="local-6989586621679138682"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138682"><span class="hs-identifier hs-var">b</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; Expr -&gt; Expr -&gt; Expr
+</span><a href="Ast.Types.html#While"><span class="hs-identifier hs-var">AT.While</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="Ast.Parser.Utils.html#normalizeLoc"><span class="hs-identifier hs-var">normalizeLoc</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138681"><span class="hs-identifier hs-var">c</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138682"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-145"></span><span class="annot"><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#Continue"><span class="hs-identifier hs-type">AT.Continue</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; Expr
+</span><a href="Ast.Types.html#Continue"><span class="hs-identifier hs-var">AT.Continue</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="Ast.Parser.Utils.html#normalizeLoc"><span class="hs-identifier hs-var">normalizeLoc</span></a></span><span>
+</span><span id="line-146"></span><span class="annot"><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#Break"><span class="hs-identifier hs-type">AT.Break</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; Expr
+</span><a href="Ast.Types.html#Break"><span class="hs-identifier hs-var">AT.Break</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="Ast.Parser.Utils.html#normalizeLoc"><span class="hs-identifier hs-var">normalizeLoc</span></a></span><span>
+</span><span id="line-147"></span><span class="annot"><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#StructAccess"><span class="hs-identifier hs-type">AT.StructAccess</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679138686"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138686"><span class="hs-identifier hs-var">e1</span></a></span></span><span> </span><span id="local-6989586621679138687"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138687"><span class="hs-identifier hs-var">e2</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; Expr -&gt; Expr -&gt; Expr
+</span><a href="Ast.Types.html#StructAccess"><span class="hs-identifier hs-var">AT.StructAccess</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="Ast.Parser.Utils.html#normalizeLoc"><span class="hs-identifier hs-var">normalizeLoc</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138686"><span class="hs-identifier hs-var">e1</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138687"><span class="hs-identifier hs-var">e2</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-148"></span><span class="annot"><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#ArrayAccess"><span class="hs-identifier hs-type">AT.ArrayAccess</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679138689"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138689"><span class="hs-identifier hs-var">e1</span></a></span></span><span> </span><span id="local-6989586621679138690"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138690"><span class="hs-identifier hs-var">e2</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; Expr -&gt; Expr -&gt; Expr
+</span><a href="Ast.Types.html#ArrayAccess"><span class="hs-identifier hs-var">AT.ArrayAccess</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="Ast.Parser.Utils.html#normalizeLoc"><span class="hs-identifier hs-var">normalizeLoc</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138689"><span class="hs-identifier hs-var">e1</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138690"><span class="hs-identifier hs-var">e2</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-149"></span><span class="annot"><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#Cast"><span class="hs-identifier hs-type">AT.Cast</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679138692"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679138692"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679138693"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138693"><span class="hs-identifier hs-var">e</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; Type -&gt; Expr -&gt; Expr
+</span><a href="Ast.Types.html#Cast"><span class="hs-identifier hs-var">AT.Cast</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="Ast.Parser.Utils.html#normalizeLoc"><span class="hs-identifier hs-var">normalizeLoc</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679138692"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; Expr
+</span><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679138693"><span class="hs-identifier hs-var">e</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-150"></span><span class="annot"><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#ForeignFunction"><span class="hs-identifier hs-type">AT.ForeignFunction</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679138695"><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679138695"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span id="local-6989586621679138696"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679138696"><span class="hs-identifier hs-var">t</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; [Char] -&gt; Type -&gt; Expr
+</span><a href="Ast.Types.html#ForeignFunction"><span class="hs-identifier hs-var">AT.ForeignFunction</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="Ast.Parser.Utils.html#normalizeLoc"><span class="hs-identifier hs-var">normalizeLoc</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679138695"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679138696"><span class="hs-identifier hs-var">t</span></a></span><span>
+</span><span id="line-151"></span><span class="annot"><a href="Ast.Parser.Utils.html#normalizeExpr"><span class="hs-identifier hs-var">normalizeExpr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#Assembly"><span class="hs-identifier hs-type">AT.Assembly</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679138698"><span class="annot"><span class="annottext">AsmExpr
+</span><a href="#local-6989586621679138698"><span class="hs-identifier hs-var">a</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; AsmExpr -&gt; Expr
+</span><a href="Ast.Types.html#Assembly"><span class="hs-identifier hs-var">AT.Assembly</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="Ast.Parser.Utils.html#normalizeLoc"><span class="hs-identifier hs-var">normalizeLoc</span></a></span><span> </span><span class="annot"><span class="annottext">AsmExpr
+</span><a href="#local-6989586621679138698"><span class="hs-identifier hs-var">a</span></a></span><span>
+</span><span id="line-152"></span></pre></body></html>

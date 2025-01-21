@@ -1,0 +1,340 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE FlexibleContexts #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Codegen.ExprGen.Cast</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-4"></span><span>
+</span><span id="line-5"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Ast.Types.html"><span class="hs-identifier">Ast.Types</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">AT</span></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Codegen.Errors.html"><span class="hs-identifier">Codegen.Errors</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">CC</span></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="hs-pragma">{-# SOURCE</span><span> </span><span class="hs-pragma">#-}</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Codegen.ExprGen.ExprGen.html"><span class="hs-identifier">Codegen.ExprGen.ExprGen</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">EG</span></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Codegen.ExprGen.Types.html"><span class="hs-identifier">Codegen.ExprGen.Types</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">ET</span></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Codegen.State.html"><span class="hs-identifier">Codegen.State</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">CS</span></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad.Except</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">E</span></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.html"><span class="hs-identifier">LLVM.AST</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">AST</span></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Constant.html"><span class="hs-identifier">LLVM.AST.Constant</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">C</span></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.IntegerPredicate.html"><span class="hs-identifier">LLVM.AST.IntegerPredicate</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">IP</span></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html"><span class="hs-identifier">LLVM.AST.Type</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">T</span></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Typed.html"><span class="hs-identifier">LLVM.AST.Typed</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">TD</span></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.IRBuilder.Instruction.html"><span class="hs-identifier">LLVM.IRBuilder.Instruction</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">I</span></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Shared.Utils.html"><span class="hs-identifier">Shared.Utils</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">SU</span></span><span>
+</span><span id="line-18"></span><span>
+</span><span id="line-19"></span><span class="annot"><span class="hs-comment">-- | Generate LLVM code for type casts.</span></span><span>
+</span><span id="line-20"></span><span id="local-6989586621679141653"><span class="annot"><a href="Codegen.ExprGen.Cast.html#generateCast"><span class="hs-identifier hs-type">generateCast</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Codegen.State.html#MonadCodegen"><span class="hs-identifier hs-type">CS.MonadCodegen</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679141653"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Codegen.ExprGen.ExprGen.html#ExprGen"><span class="hs-identifier hs-type">EG.ExprGen</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679141653"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Operand.html#Operand"><span class="hs-identifier hs-type">AST.Operand</span></a></span></span><span>
+</span><span id="line-21"></span><span id="generateCast"><span class="annot"><span class="annottext">generateCast :: forall (m :: * -&gt; *).
+(MonadCodegen m, ExprGen Expr) =&gt;
+Expr -&gt; m Operand
+</span><a href="Codegen.ExprGen.Cast.html#generateCast"><span class="hs-identifier hs-var hs-var">generateCast</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Ast.Types.html#Cast"><span class="hs-identifier hs-type">AT.Cast</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679141718"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679141718"><span class="hs-identifier hs-var">typ</span></a></span></span><span> </span><span id="local-6989586621679141719"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679141719"><span class="hs-identifier hs-var">expr</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-22"></span><span>  </span><span id="local-6989586621679141720"><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141720"><span class="hs-identifier hs-var">operand</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Expr -&gt; m Operand
+forall a (m :: * -&gt; *).
+(ExprGen a, MonadCodegen m) =&gt;
+a -&gt; m Operand
+forall (m :: * -&gt; *). MonadCodegen m =&gt; Expr -&gt; m Operand
+</span><a href="Codegen.ExprGen.ExprGen.html#generateExpr"><span class="hs-identifier hs-var">EG.generateExpr</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679141719"><span class="hs-identifier hs-var">expr</span></a></span><span>
+</span><span id="line-23"></span><span>  </span><span class="annot"><span class="annottext">SrcLoc -&gt; Operand -&gt; Type -&gt; Type -&gt; m Operand
+forall (m :: * -&gt; *).
+MonadCodegen m =&gt;
+SrcLoc -&gt; Operand -&gt; Type -&gt; Type -&gt; m Operand
+</span><a href="Codegen.ExprGen.Cast.html#llvmCast"><span class="hs-identifier hs-var">llvmCast</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; SrcLoc
+</span><a href="Shared.Utils.html#getLoc"><span class="hs-identifier hs-var">SU.getLoc</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679141719"><span class="hs-identifier hs-var">expr</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141720"><span class="hs-identifier hs-var">operand</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Operand -&gt; Type
+forall a. Typed a =&gt; a -&gt; Type
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Typed.html#typeOf"><span class="hs-identifier hs-var">TD.typeOf</span></a></span><span> </span><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141720"><span class="hs-identifier hs-var">operand</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Type -&gt; Type
+forall a. ToLLVM a =&gt; a -&gt; Type
+</span><a href="Codegen.ExprGen.Types.html#toLLVM"><span class="hs-identifier hs-var">ET.toLLVM</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679141718"><span class="hs-identifier hs-var">typ</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-24"></span><span class="annot"><a href="Codegen.ExprGen.Cast.html#generateCast"><span class="hs-identifier hs-var">generateCast</span></a></span><span> </span><span id="local-6989586621679141726"><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679141726"><span class="hs-identifier hs-var">expr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-25"></span><span>  </span><span class="annot"><span class="annottext">CodegenError -&gt; m Operand
+forall a. CodegenError -&gt; m a
+forall e (m :: * -&gt; *) a. MonadError e m =&gt; e -&gt; m a
+</span><span class="hs-identifier hs-var">E.throwError</span></span><span> </span><span class="annot"><span class="annottext">(CodegenError -&gt; m Operand) -&gt; CodegenError -&gt; m Operand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; CodegenErrorType -&gt; CodegenError
+</span><a href="Codegen.Errors.html#CodegenError"><span class="hs-identifier hs-var">CC.CodegenError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Expr -&gt; SrcLoc
+</span><a href="Shared.Utils.html#getLoc"><span class="hs-identifier hs-var">SU.getLoc</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679141726"><span class="hs-identifier hs-var">expr</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(CodegenErrorType -&gt; CodegenError)
+-&gt; CodegenErrorType -&gt; CodegenError
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Expr -&gt; CodegenErrorType
+</span><a href="Codegen.Errors.html#UnsupportedDefinition"><span class="hs-identifier hs-var">CC.UnsupportedDefinition</span></a></span><span> </span><span class="annot"><span class="annottext">Expr
+</span><a href="#local-6989586621679141726"><span class="hs-identifier hs-var">expr</span></a></span><span>
+</span><span id="line-26"></span><span>
+</span><span id="line-27"></span><span class="annot"><span class="hs-comment">-- | Cast an operand to match a desired LLVM type.</span></span><span>
+</span><span id="line-28"></span><span id="local-6989586621679141675"><span class="annot"><a href="Codegen.ExprGen.Cast.html#llvmCast"><span class="hs-identifier hs-type">llvmCast</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Codegen.State.html#MonadCodegen"><span class="hs-identifier hs-type">CS.MonadCodegen</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679141675"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">AT.SrcLoc</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Operand.html#Operand"><span class="hs-identifier hs-type">AST.Operand</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#Type"><span class="hs-identifier hs-type">T.Type</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#Type"><span class="hs-identifier hs-type">T.Type</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679141675"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Operand.html#Operand"><span class="hs-identifier hs-type">AST.Operand</span></a></span></span><span>
+</span><span id="line-29"></span><span id="llvmCast"><span class="annot"><span class="annottext">llvmCast :: forall (m :: * -&gt; *).
+MonadCodegen m =&gt;
+SrcLoc -&gt; Operand -&gt; Type -&gt; Type -&gt; m Operand
+</span><a href="Codegen.ExprGen.Cast.html#llvmCast"><span class="hs-identifier hs-var hs-var">llvmCast</span></a></span></span><span> </span><span id="local-6989586621679141749"><span class="annot"><span class="annottext">SrcLoc
+</span><a href="#local-6989586621679141749"><span class="hs-identifier hs-var">loc</span></a></span></span><span> </span><span id="local-6989586621679141750"><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141750"><span class="hs-identifier hs-var">operand</span></a></span></span><span> </span><span id="local-6989586621679141751"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679141751"><span class="hs-identifier hs-var">fromType</span></a></span></span><span> </span><span id="local-6989586621679141752"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679141752"><span class="hs-identifier hs-var">toType</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679141751"><span class="hs-identifier hs-var">fromType</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679141752"><span class="hs-identifier hs-var">toType</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-30"></span><span>  </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#IntegerType"><span class="hs-identifier hs-type">T.IntegerType</span></a></span><span> </span><span id="local-6989586621679141754"><span class="annot"><span class="annottext">Word32
+</span><a href="#local-6989586621679141754"><span class="hs-identifier hs-var">fromBits</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#IntegerType"><span class="hs-identifier hs-type">T.IntegerType</span></a></span><span> </span><span id="local-6989586621679141755"><span class="annot"><span class="annottext">Word32
+</span><a href="#local-6989586621679141755"><span class="hs-identifier hs-var">toBits</span></a></span></span><span class="hs-special">)</span><span>
+</span><span id="line-31"></span><span>    </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Word32
+</span><a href="#local-6989586621679141754"><span class="hs-identifier hs-var">fromBits</span></a></span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Word32 -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="annottext">Word32
+</span><a href="#local-6989586621679141755"><span class="hs-identifier hs-var">toBits</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Operand -&gt; Type -&gt; m Operand
+forall (m :: * -&gt; *).
+MonadIRBuilder m =&gt;
+Operand -&gt; Type -&gt; m Operand
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.IRBuilder.Instruction.html#zext"><span class="hs-identifier hs-var">I.zext</span></a></span><span> </span><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141750"><span class="hs-identifier hs-var">operand</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679141752"><span class="hs-identifier hs-var">toType</span></a></span><span>
+</span><span id="line-32"></span><span>    </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Word32
+</span><a href="#local-6989586621679141754"><span class="hs-identifier hs-var">fromBits</span></a></span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Word32 -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&gt;</span></span><span> </span><span class="annot"><span class="annottext">Word32
+</span><a href="#local-6989586621679141755"><span class="hs-identifier hs-var">toBits</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Operand -&gt; Type -&gt; m Operand
+forall (m :: * -&gt; *).
+MonadIRBuilder m =&gt;
+Operand -&gt; Type -&gt; m Operand
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.IRBuilder.Instruction.html#trunc"><span class="hs-identifier hs-var">I.trunc</span></a></span><span> </span><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141750"><span class="hs-identifier hs-var">operand</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679141752"><span class="hs-identifier hs-var">toType</span></a></span><span>
+</span><span id="line-33"></span><span>    </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Operand -&gt; m Operand
+forall a. a -&gt; m a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141750"><span class="hs-identifier hs-var">operand</span></a></span><span>
+</span><span id="line-34"></span><span>  </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#FloatingPointType"><span class="hs-identifier hs-type">T.FloatingPointType</span></a></span><span> </span><span id="local-6989586621679141761"><span class="annot"><span class="annottext">FloatingPointType
+</span><a href="#local-6989586621679141761"><span class="hs-identifier hs-var">fromFP</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#FloatingPointType"><span class="hs-identifier hs-type">T.FloatingPointType</span></a></span><span> </span><span id="local-6989586621679141762"><span class="annot"><span class="annottext">FloatingPointType
+</span><a href="#local-6989586621679141762"><span class="hs-identifier hs-var">toFP</span></a></span></span><span class="hs-special">)</span><span>
+</span><span id="line-35"></span><span>    </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">FloatingPointType -&gt; FloatingPointType -&gt; Bool
+</span><a href="#local-6989586621679141763"><span class="hs-identifier hs-var">isLargerFP</span></a></span><span> </span><span class="annot"><span class="annottext">FloatingPointType
+</span><a href="#local-6989586621679141761"><span class="hs-identifier hs-var">fromFP</span></a></span><span> </span><span class="annot"><span class="annottext">FloatingPointType
+</span><a href="#local-6989586621679141762"><span class="hs-identifier hs-var">toFP</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Operand -&gt; Type -&gt; m Operand
+forall (m :: * -&gt; *).
+MonadIRBuilder m =&gt;
+Operand -&gt; Type -&gt; m Operand
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.IRBuilder.Instruction.html#fpext"><span class="hs-identifier hs-var">I.fpext</span></a></span><span> </span><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141750"><span class="hs-identifier hs-var">operand</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679141752"><span class="hs-identifier hs-var">toType</span></a></span><span>
+</span><span id="line-36"></span><span>    </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">FloatingPointType -&gt; FloatingPointType -&gt; Bool
+</span><a href="#local-6989586621679141765"><span class="hs-identifier hs-var">isSmallerFP</span></a></span><span> </span><span class="annot"><span class="annottext">FloatingPointType
+</span><a href="#local-6989586621679141761"><span class="hs-identifier hs-var">fromFP</span></a></span><span> </span><span class="annot"><span class="annottext">FloatingPointType
+</span><a href="#local-6989586621679141762"><span class="hs-identifier hs-var">toFP</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Operand -&gt; Type -&gt; m Operand
+forall (m :: * -&gt; *).
+MonadIRBuilder m =&gt;
+Operand -&gt; Type -&gt; m Operand
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.IRBuilder.Instruction.html#fptrunc"><span class="hs-identifier hs-var">I.fptrunc</span></a></span><span> </span><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141750"><span class="hs-identifier hs-var">operand</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679141752"><span class="hs-identifier hs-var">toType</span></a></span><span>
+</span><span id="line-37"></span><span>    </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Operand -&gt; m Operand
+forall a. a -&gt; m a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141750"><span class="hs-identifier hs-var">operand</span></a></span><span>
+</span><span id="line-38"></span><span>  </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#IntegerType"><span class="hs-identifier hs-type">T.IntegerType</span></a></span><span> </span><span class="annot"><span class="annottext">Word32
+</span><span class="hs-identifier">_</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#FloatingPointType"><span class="hs-identifier hs-type">T.FloatingPointType</span></a></span><span> </span><span class="annot"><span class="annottext">FloatingPointType
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Operand -&gt; Type -&gt; m Operand
+forall (m :: * -&gt; *).
+MonadIRBuilder m =&gt;
+Operand -&gt; Type -&gt; m Operand
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.IRBuilder.Instruction.html#sitofp"><span class="hs-identifier hs-var">I.sitofp</span></a></span><span> </span><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141750"><span class="hs-identifier hs-var">operand</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679141752"><span class="hs-identifier hs-var">toType</span></a></span><span>
+</span><span id="line-39"></span><span>  </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#FloatingPointType"><span class="hs-identifier hs-type">T.FloatingPointType</span></a></span><span> </span><span class="annot"><span class="annottext">FloatingPointType
+</span><span class="hs-identifier">_</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#IntegerType"><span class="hs-identifier hs-type">T.IntegerType</span></a></span><span> </span><span class="annot"><span class="annottext">Word32
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Operand -&gt; Type -&gt; m Operand
+forall (m :: * -&gt; *).
+MonadIRBuilder m =&gt;
+Operand -&gt; Type -&gt; m Operand
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.IRBuilder.Instruction.html#fptosi"><span class="hs-identifier hs-var">I.fptosi</span></a></span><span> </span><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141750"><span class="hs-identifier hs-var">operand</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679141752"><span class="hs-identifier hs-var">toType</span></a></span><span>
+</span><span id="line-40"></span><span>  </span><span class="hs-special">(</span><span id="local-6989586621679141769"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679141769"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679141770"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679141770"><span class="hs-identifier hs-var">y</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Type -&gt; Type -&gt; Bool
+</span><a href="#local-6989586621679141771"><span class="hs-identifier hs-var">isBitcastable</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679141769"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679141770"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Operand -&gt; Type -&gt; m Operand
+forall (m :: * -&gt; *).
+MonadIRBuilder m =&gt;
+Operand -&gt; Type -&gt; m Operand
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.IRBuilder.Instruction.html#bitcast"><span class="hs-identifier hs-var">I.bitcast</span></a></span><span> </span><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141750"><span class="hs-identifier hs-var">operand</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679141752"><span class="hs-identifier hs-var">toType</span></a></span><span>
+</span><span id="line-41"></span><span>  </span><span class="annot"><span class="annottext">(Type, Type)
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">CodegenError -&gt; m Operand
+forall a. CodegenError -&gt; m a
+forall e (m :: * -&gt; *) a. MonadError e m =&gt; e -&gt; m a
+</span><span class="hs-identifier hs-var">E.throwError</span></span><span> </span><span class="annot"><span class="annottext">(CodegenError -&gt; m Operand) -&gt; CodegenError -&gt; m Operand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; CodegenErrorType -&gt; CodegenError
+</span><a href="Codegen.Errors.html#CodegenError"><span class="hs-identifier hs-var">CC.CodegenError</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="#local-6989586621679141749"><span class="hs-identifier hs-var">loc</span></a></span><span> </span><span class="annot"><span class="annottext">(CodegenErrorType -&gt; CodegenError)
+-&gt; CodegenErrorType -&gt; CodegenError
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Type -&gt; Type -&gt; CodegenErrorType
+</span><a href="Codegen.Errors.html#UnsupportedConversion"><span class="hs-identifier hs-var">CC.UnsupportedConversion</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679141751"><span class="hs-identifier hs-var">fromType</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679141752"><span class="hs-identifier hs-var">toType</span></a></span><span>
+</span><span id="line-42"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-43"></span><span>    </span><span id="local-6989586621679141763"><span class="annot"><span class="annottext">isLargerFP :: FloatingPointType -&gt; FloatingPointType -&gt; Bool
+</span><a href="#local-6989586621679141763"><span class="hs-identifier hs-var hs-var">isLargerFP</span></a></span></span><span> </span><span class="annot"><span class="annottext">FloatingPointType
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#FloatFP"><span class="hs-identifier hs-var">T.FloatFP</span></a></span><span> </span><span class="annot"><span class="annottext">FloatingPointType
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#DoubleFP"><span class="hs-identifier hs-var">T.DoubleFP</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">True</span></span><span>
+</span><span id="line-44"></span><span>    </span><span class="annot"><a href="#local-6989586621679141763"><span class="hs-identifier hs-var">isLargerFP</span></a></span><span> </span><span class="annot"><span class="annottext">FloatingPointType
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">FloatingPointType
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">False</span></span><span>
+</span><span id="line-45"></span><span>
+</span><span id="line-46"></span><span>    </span><span id="local-6989586621679141765"><span class="annot"><span class="annottext">isSmallerFP :: FloatingPointType -&gt; FloatingPointType -&gt; Bool
+</span><a href="#local-6989586621679141765"><span class="hs-identifier hs-var hs-var">isSmallerFP</span></a></span></span><span> </span><span class="annot"><span class="annottext">FloatingPointType
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#DoubleFP"><span class="hs-identifier hs-var">T.DoubleFP</span></a></span><span> </span><span class="annot"><span class="annottext">FloatingPointType
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#FloatFP"><span class="hs-identifier hs-var">T.FloatFP</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">True</span></span><span>
+</span><span id="line-47"></span><span>    </span><span class="annot"><a href="#local-6989586621679141765"><span class="hs-identifier hs-var">isSmallerFP</span></a></span><span> </span><span class="annot"><span class="annottext">FloatingPointType
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">FloatingPointType
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">False</span></span><span>
+</span><span id="line-48"></span><span>
+</span><span id="line-49"></span><span>    </span><span id="local-6989586621679141771"><span class="annot"><span class="annottext">isBitcastable :: Type -&gt; Type -&gt; Bool
+</span><a href="#local-6989586621679141771"><span class="hs-identifier hs-var hs-var">isBitcastable</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#PointerType"><span class="hs-identifier hs-type">T.PointerType</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">AddrSpace
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#PointerType"><span class="hs-identifier hs-type">T.PointerType</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">AddrSpace
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">True</span></span><span>
+</span><span id="line-50"></span><span>    </span><span class="annot"><a href="#local-6989586621679141771"><span class="hs-identifier hs-var">isBitcastable</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#ArrayType"><span class="hs-identifier hs-type">T.ArrayType</span></a></span><span> </span><span class="annot"><span class="annottext">Word64
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Type
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#PointerType"><span class="hs-identifier hs-type">T.PointerType</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">AddrSpace
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">True</span></span><span>
+</span><span id="line-51"></span><span>    </span><span class="annot"><a href="#local-6989586621679141771"><span class="hs-identifier hs-var">isBitcastable</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#ArrayType"><span class="hs-identifier hs-type">T.ArrayType</span></a></span><span> </span><span class="annot"><span class="annottext">Word64
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Type
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#ArrayType"><span class="hs-identifier hs-type">T.ArrayType</span></a></span><span> </span><span class="annot"><span class="annottext">Word64
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Type
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">True</span></span><span>
+</span><span id="line-52"></span><span>    </span><span class="annot"><a href="#local-6989586621679141771"><span class="hs-identifier hs-var">isBitcastable</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#PointerType"><span class="hs-identifier hs-type">T.PointerType</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">AddrSpace
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#IntegerType"><span class="hs-identifier hs-type">T.IntegerType</span></a></span><span> </span><span class="annot"><span class="annottext">Word32
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">True</span></span><span>
+</span><span id="line-53"></span><span>    </span><span class="annot"><a href="#local-6989586621679141771"><span class="hs-identifier hs-var">isBitcastable</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#IntegerType"><span class="hs-identifier hs-type">T.IntegerType</span></a></span><span> </span><span class="annot"><span class="annottext">Word32
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#PointerType"><span class="hs-identifier hs-type">T.PointerType</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">AddrSpace
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">True</span></span><span>
+</span><span id="line-54"></span><span>    </span><span class="annot"><a href="#local-6989586621679141771"><span class="hs-identifier hs-var">isBitcastable</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Type
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">False</span></span><span>
+</span><span id="line-55"></span><span>
+</span><span id="line-56"></span><span class="annot"><span class="hs-comment">-- | Convert an operand to match a desired LLVM type if needed.</span></span><span>
+</span><span id="line-57"></span><span id="local-6989586621679141693"><span class="annot"><a href="Codegen.ExprGen.Cast.html#ensureMatchingType"><span class="hs-identifier hs-type">ensureMatchingType</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Codegen.State.html#MonadCodegen"><span class="hs-identifier hs-type">CS.MonadCodegen</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679141693"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">AT.SrcLoc</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Operand.html#Operand"><span class="hs-identifier hs-type">AST.Operand</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#Type"><span class="hs-identifier hs-type">T.Type</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679141693"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Operand.html#Operand"><span class="hs-identifier hs-type">AST.Operand</span></a></span></span><span>
+</span><span id="line-58"></span><span id="ensureMatchingType"><span class="annot"><span class="annottext">ensureMatchingType :: forall (m :: * -&gt; *).
+MonadCodegen m =&gt;
+SrcLoc -&gt; Operand -&gt; Type -&gt; m Operand
+</span><a href="Codegen.ExprGen.Cast.html#ensureMatchingType"><span class="hs-identifier hs-var hs-var">ensureMatchingType</span></a></span></span><span> </span><span id="local-6989586621679141789"><span class="annot"><span class="annottext">SrcLoc
+</span><a href="#local-6989586621679141789"><span class="hs-identifier hs-var">loc</span></a></span></span><span> </span><span id="local-6989586621679141790"><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141790"><span class="hs-identifier hs-var">val</span></a></span></span><span> </span><span id="local-6989586621679141791"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679141791"><span class="hs-identifier hs-var">targetTy</span></a></span></span><span>
+</span><span id="line-59"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Operand -&gt; Type
+forall a. Typed a =&gt; a -&gt; Type
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Typed.html#typeOf"><span class="hs-identifier hs-var">TD.typeOf</span></a></span><span> </span><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141790"><span class="hs-identifier hs-var">val</span></a></span><span> </span><span class="annot"><span class="annottext">Type -&gt; Type -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679141791"><span class="hs-identifier hs-var">targetTy</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Operand -&gt; m Operand
+forall a. a -&gt; m a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141790"><span class="hs-identifier hs-var">val</span></a></span><span>
+</span><span id="line-60"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; Operand -&gt; Type -&gt; Type -&gt; m Operand
+forall (m :: * -&gt; *).
+MonadCodegen m =&gt;
+SrcLoc -&gt; Operand -&gt; Type -&gt; Type -&gt; m Operand
+</span><a href="Codegen.ExprGen.Cast.html#llvmCast"><span class="hs-identifier hs-var">llvmCast</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="#local-6989586621679141789"><span class="hs-identifier hs-var">loc</span></a></span><span> </span><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141790"><span class="hs-identifier hs-var">val</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Operand -&gt; Type
+forall a. Typed a =&gt; a -&gt; Type
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Typed.html#typeOf"><span class="hs-identifier hs-var">TD.typeOf</span></a></span><span> </span><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141790"><span class="hs-identifier hs-var">val</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679141791"><span class="hs-identifier hs-var">targetTy</span></a></span><span>
+</span><span id="line-61"></span><span>
+</span><span id="line-62"></span><span class="annot"><span class="hs-comment">-- | Convert an operand to a boolean value.</span></span><span>
+</span><span id="line-63"></span><span id="local-6989586621679141696"><span class="annot"><a href="Codegen.ExprGen.Cast.html#toBool"><span class="hs-identifier hs-type">toBool</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Codegen.State.html#MonadCodegen"><span class="hs-identifier hs-type">CS.MonadCodegen</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679141696"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Ast.Types.html#SrcLoc"><span class="hs-identifier hs-type">AT.SrcLoc</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Operand.html#Operand"><span class="hs-identifier hs-type">AST.Operand</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679141696"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Operand.html#Operand"><span class="hs-identifier hs-type">AST.Operand</span></a></span></span><span>
+</span><span id="line-64"></span><span id="toBool"><span class="annot"><span class="annottext">toBool :: forall (m :: * -&gt; *).
+MonadCodegen m =&gt;
+SrcLoc -&gt; Operand -&gt; m Operand
+</span><a href="Codegen.ExprGen.Cast.html#toBool"><span class="hs-identifier hs-var hs-var">toBool</span></a></span></span><span> </span><span id="local-6989586621679141810"><span class="annot"><span class="annottext">SrcLoc
+</span><a href="#local-6989586621679141810"><span class="hs-identifier hs-var">loc</span></a></span></span><span> </span><span id="local-6989586621679141811"><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141811"><span class="hs-identifier hs-var">val</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-65"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679141813"><span class="annot"><span class="annottext">ty :: Type
+</span><a href="#local-6989586621679141813"><span class="hs-identifier hs-var hs-var">ty</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Operand -&gt; Type
+forall a. Typed a =&gt; a -&gt; Type
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Typed.html#typeOf"><span class="hs-identifier hs-var">TD.typeOf</span></a></span><span> </span><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141811"><span class="hs-identifier hs-var">val</span></a></span><span>
+</span><span id="line-66"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679141813"><span class="hs-identifier hs-var">ty</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-67"></span><span>    </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#IntegerType"><span class="hs-identifier hs-type">T.IntegerType</span></a></span><span> </span><span class="annot"><span class="annottext">Word32
+</span><span class="hs-number">1</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Operand -&gt; m Operand
+forall a. a -&gt; m a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141811"><span class="hs-identifier hs-var">val</span></a></span><span>
+</span><span id="line-68"></span><span>    </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#IntegerType"><span class="hs-identifier hs-type">T.IntegerType</span></a></span><span> </span><span class="annot"><span class="annottext">Word32
+</span><span class="hs-number">8</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-69"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679141815"><span class="annot"><span class="annottext">zero8 :: Operand
+</span><a href="#local-6989586621679141815"><span class="hs-identifier hs-var hs-var">zero8</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Constant -&gt; Operand
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Operand.html#ConstantOperand"><span class="hs-identifier hs-var">AST.ConstantOperand</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Word32 -&gt; Integer -&gt; Constant
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Constant.html#Int"><span class="hs-identifier hs-var">C.Int</span></a></span><span> </span><span class="annot"><span class="annottext">Word32
+</span><span class="hs-number">8</span></span><span> </span><span class="annot"><span class="annottext">Integer
+</span><span class="hs-number">0</span></span><span class="hs-special">)</span><span>
+</span><span id="line-70"></span><span>      </span><span class="annot"><span class="annottext">IntegerPredicate -&gt; Operand -&gt; Operand -&gt; m Operand
+forall (m :: * -&gt; *).
+MonadIRBuilder m =&gt;
+IntegerPredicate -&gt; Operand -&gt; Operand -&gt; m Operand
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.IRBuilder.Instruction.html#icmp"><span class="hs-identifier hs-var">I.icmp</span></a></span><span> </span><span class="annot"><span class="annottext">IntegerPredicate
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.IntegerPredicate.html#NE"><span class="hs-identifier hs-var">IP.NE</span></a></span><span> </span><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141811"><span class="hs-identifier hs-var">val</span></a></span><span> </span><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141815"><span class="hs-identifier hs-var">zero8</span></a></span><span>
+</span><span id="line-71"></span><span>    </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Type.html#IntegerType"><span class="hs-identifier hs-type">T.IntegerType</span></a></span><span> </span><span class="annot"><span class="annottext">Word32
+</span><span class="hs-number">32</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-72"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679141821"><span class="annot"><span class="annottext">zero32 :: Operand
+</span><a href="#local-6989586621679141821"><span class="hs-identifier hs-var hs-var">zero32</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Constant -&gt; Operand
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Operand.html#ConstantOperand"><span class="hs-identifier hs-var">AST.ConstantOperand</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Word32 -&gt; Integer -&gt; Constant
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.Constant.html#Int"><span class="hs-identifier hs-var">C.Int</span></a></span><span> </span><span class="annot"><span class="annottext">Word32
+</span><span class="hs-number">32</span></span><span> </span><span class="annot"><span class="annottext">Integer
+</span><span class="hs-number">0</span></span><span class="hs-special">)</span><span>
+</span><span id="line-73"></span><span>      </span><span class="annot"><span class="annottext">IntegerPredicate -&gt; Operand -&gt; Operand -&gt; m Operand
+forall (m :: * -&gt; *).
+MonadIRBuilder m =&gt;
+IntegerPredicate -&gt; Operand -&gt; Operand -&gt; m Operand
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.IRBuilder.Instruction.html#icmp"><span class="hs-identifier hs-var">I.icmp</span></a></span><span> </span><span class="annot"><span class="annottext">IntegerPredicate
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/llvm-hs-pure-9.0.0-fa471df52d3716a0e85719c6e80a0ba33bed96ea6243fcc08a4c5fd497574357/share/doc/html/src/LLVM.AST.IntegerPredicate.html#NE"><span class="hs-identifier hs-var">IP.NE</span></a></span><span> </span><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141811"><span class="hs-identifier hs-var">val</span></a></span><span> </span><span class="annot"><span class="annottext">Operand
+</span><a href="#local-6989586621679141821"><span class="hs-identifier hs-var">zero32</span></a></span><span>
+</span><span id="line-74"></span><span>    </span><span class="annot"><span class="annottext">Type
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-75"></span><span>      </span><span class="annot"><span class="annottext">CodegenError -&gt; m Operand
+forall a. CodegenError -&gt; m a
+forall e (m :: * -&gt; *) a. MonadError e m =&gt; e -&gt; m a
+</span><span class="hs-identifier hs-var">E.throwError</span></span><span> </span><span class="annot"><span class="annottext">(CodegenError -&gt; m Operand) -&gt; CodegenError -&gt; m Operand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">SrcLoc -&gt; CodegenErrorType -&gt; CodegenError
+</span><a href="Codegen.Errors.html#CodegenError"><span class="hs-identifier hs-var">CC.CodegenError</span></a></span><span> </span><span class="annot"><span class="annottext">SrcLoc
+</span><a href="#local-6989586621679141810"><span class="hs-identifier hs-var">loc</span></a></span><span> </span><span class="annot"><span class="annottext">(CodegenErrorType -&gt; CodegenError)
+-&gt; CodegenErrorType -&gt; CodegenError
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Type -&gt; CodegenErrorType
+</span><a href="Codegen.Errors.html#UnsupportedType"><span class="hs-identifier hs-var">CC.UnsupportedType</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="Ast.Types.html#TVoid"><span class="hs-identifier hs-var">AT.TVoid</span></a></span><span>
+</span><span id="line-76"></span></pre></body></html>

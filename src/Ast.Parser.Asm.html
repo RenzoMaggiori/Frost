@@ -1,0 +1,486 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Ast.Parser.Asm</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html"><span class="hs-identifier">Ast.Parser.Utils</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">PU</span></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Ast.Types.html"><span class="hs-identifier">Ast.Types</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">AT</span></span><span>
+</span><span id="line-5"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Maybe</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">DM</span></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.html"><span class="hs-identifier">Text.Megaparsec</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">M</span></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.html"><span class="hs-identifier">Text.Megaparsec.Char</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">MC</span></span><span>
+</span><span id="line-8"></span><span>
+</span><span id="line-9"></span><span class="hs-comment">-- | Parses an inline assembly expression.</span><span>
+</span><span id="line-10"></span><span class="hs-comment">-- Takes a `PU.Parser AT.Expr` for expressions and a `PU.Parser AT.Type` for types.</span><span>
+</span><span id="line-11"></span><span class="hs-comment">-- Returns an `AT.AsmExpr` containing:</span><span>
+</span><span id="line-12"></span><span class="hs-comment">--   * The assembly code</span><span>
+</span><span id="line-13"></span><span class="hs-comment">--   * The assembly constraints</span><span>
+</span><span id="line-14"></span><span class="hs-comment">--   * A list of expression arguments</span><span>
+</span><span id="line-15"></span><span class="hs-comment">--   * A list of parameter types</span><span>
+</span><span id="line-16"></span><span class="hs-comment">--   * A return type</span><span>
+</span><span id="line-17"></span><span class="hs-comment">--   * Side-effect flags</span><span>
+</span><span id="line-18"></span><span class="hs-comment">--   * Stack alignment flag</span><span>
+</span><span id="line-19"></span><span class="hs-comment">--   * An assembly dialect</span><span>
+</span><span id="line-20"></span><span class="annot"><a href="Ast.Parser.Asm.html#parseAsm"><span class="hs-identifier hs-type">parseAsm</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">PU.Parser</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#Expr"><span class="hs-identifier hs-type">AT.Expr</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">PU.Parser</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#Type"><span class="hs-identifier hs-type">AT.Type</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">PU.Parser</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#AsmExpr"><span class="hs-identifier hs-type">AT.AsmExpr</span></a></span><span>
+</span><span id="line-21"></span><span id="parseAsm"><span class="annot"><span class="annottext">parseAsm :: Parser Expr -&gt; Parser Type -&gt; Parser AsmExpr
+</span><a href="Ast.Parser.Asm.html#parseAsm"><span class="hs-identifier hs-var hs-var">parseAsm</span></a></span></span><span> </span><span id="local-6989586621679139894"><span class="annot"><span class="annottext">Parser Expr
+</span><a href="#local-6989586621679139894"><span class="hs-identifier hs-var">ap</span></a></span></span><span> </span><span id="local-6989586621679139895"><span class="annot"><span class="annottext">Parser Type
+</span><a href="#local-6989586621679139895"><span class="hs-identifier hs-var">tp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+-&gt; Parser AsmExpr
+-&gt; Parser AsmExpr
+forall (m :: * -&gt; *) open close a.
+Applicative m =&gt;
+m open -&gt; m close -&gt; m a -&gt; m a
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Applicative.Combinators.html#between"><span class="hs-identifier hs-var">M.between</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">PU.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;{&quot;</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">PU.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;}&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Parser AsmExpr -&gt; Parser AsmExpr)
+-&gt; Parser AsmExpr -&gt; Parser AsmExpr
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-22"></span><span>  </span><span id="local-6989586621679139898"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679139898"><span class="hs-identifier hs-var">code</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">PU.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;code -&gt;&quot;</span></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+forall a b.
+ParsecT ParseErrorCustom String (StateT ParserState IO) a
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f a -&gt; f b -&gt; f b
+</span><span class="hs-operator hs-var">*&gt;</span></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+forall a. Parser a -&gt; Parser a
+</span><a href="Ast.Parser.Utils.html#lexeme"><span class="hs-identifier hs-var">PU.lexeme</span></a></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) String
+</span><a href="Ast.Parser.Asm.html#anyString"><span class="hs-identifier hs-var">anyString</span></a></span><span>
+</span><span id="line-23"></span><span>  </span><span id="local-6989586621679139901"><span class="annot"><span class="annottext">AsmConstraint
+</span><a href="#local-6989586621679139901"><span class="hs-identifier hs-var">constraints</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">PU.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;constraints -&gt;&quot;</span></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) String
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) AsmConstraint
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) AsmConstraint
+forall a b.
+ParsecT ParseErrorCustom String (StateT ParserState IO) a
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f a -&gt; f b -&gt; f b
+</span><span class="hs-operator hs-var">*&gt;</span></span><span> </span><span class="annot"><span class="annottext">ParsecT
+  ParseErrorCustom String (StateT ParserState IO) AsmConstraint
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) AsmConstraint
+forall a. Parser a -&gt; Parser a
+</span><a href="Ast.Parser.Utils.html#lexeme"><span class="hs-identifier hs-var">PU.lexeme</span></a></span><span> </span><span class="annot"><span class="annottext">ParsecT
+  ParseErrorCustom String (StateT ParserState IO) AsmConstraint
+</span><a href="Ast.Parser.Asm.html#parseAsmConstraint"><span class="hs-identifier hs-var">parseAsmConstraint</span></a></span><span>
+</span><span id="line-24"></span><span>  </span><span id="local-6989586621679139903"><span class="annot"><span class="annottext">[Expr]
+</span><a href="#local-6989586621679139903"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">PU.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;args -&gt;&quot;</span></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) [Expr]
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) [Expr]
+forall a b.
+ParsecT ParseErrorCustom String (StateT ParserState IO) a
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f a -&gt; f b -&gt; f b
+</span><span class="hs-operator hs-var">*&gt;</span></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) [Expr]
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) [Expr]
+forall (m :: * -&gt; *) open close a.
+Applicative m =&gt;
+m open -&gt; m close -&gt; m a -&gt; m a
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Applicative.Combinators.html#between"><span class="hs-identifier hs-var">M.between</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">PU.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;(&quot;</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">PU.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;)&quot;</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Parser Expr
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) [Expr]
+forall (m :: * -&gt; *) a. MonadPlus m =&gt; m a -&gt; m [a]
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Monad.Combinators.html#many"><span class="hs-identifier hs-var">M.many</span></a></span><span> </span><span class="annot"><span class="annottext">Parser Expr
+</span><a href="#local-6989586621679139894"><span class="hs-identifier hs-var">ap</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-25"></span><span>  </span><span id="local-6989586621679139905"><span class="annot"><span class="annottext">[Type]
+</span><a href="#local-6989586621679139905"><span class="hs-identifier hs-var">parameters</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">PU.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;parameters -&gt;&quot;</span></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) [Type]
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) [Type]
+forall a b.
+ParsecT ParseErrorCustom String (StateT ParserState IO) a
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f a -&gt; f b -&gt; f b
+</span><span class="hs-operator hs-var">*&gt;</span></span><span> </span><span class="annot"><span class="annottext">Parser Type
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) [Type]
+forall (m :: * -&gt; *) a. MonadPlus m =&gt; m a -&gt; m [a]
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Monad.Combinators.html#some"><span class="hs-identifier hs-var">M.some</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Parser Type -&gt; Parser Type
+forall a. Parser a -&gt; Parser a
+forall e s (m :: * -&gt; *) a. MonadParsec e s m =&gt; m a -&gt; m a
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Class.html#try"><span class="hs-identifier hs-var">M.try</span></a></span><span> </span><span class="annot"><span class="annottext">Parser Type
+</span><a href="#local-6989586621679139895"><span class="hs-identifier hs-var">tp</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-26"></span><span>  </span><span id="local-6989586621679139908"><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679139908"><span class="hs-identifier hs-var">returnType</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">PU.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;return_type -&gt;&quot;</span></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) String
+-&gt; Parser Type -&gt; Parser Type
+forall a b.
+ParsecT ParseErrorCustom String (StateT ParserState IO) a
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f a -&gt; f b -&gt; f b
+</span><span class="hs-operator hs-var">*&gt;</span></span><span> </span><span class="annot"><span class="annottext">Parser Type -&gt; Parser Type
+forall a. Parser a -&gt; Parser a
+forall e s (m :: * -&gt; *) a. MonadParsec e s m =&gt; m a -&gt; m a
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Class.html#try"><span class="hs-identifier hs-var">M.try</span></a></span><span> </span><span class="annot"><span class="annottext">Parser Type
+</span><a href="#local-6989586621679139895"><span class="hs-identifier hs-var">tp</span></a></span><span>
+</span><span id="line-27"></span><span>  </span><span id="local-6989586621679139909"><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679139909"><span class="hs-identifier hs-var">sideEffects</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">PU.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;side_effects -&gt;&quot;</span></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) Bool
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) Bool
+forall a b.
+ParsecT ParseErrorCustom String (StateT ParserState IO) a
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f a -&gt; f b -&gt; f b
+</span><span class="hs-operator hs-var">*&gt;</span></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) Bool
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) Bool
+forall a. Parser a -&gt; Parser a
+</span><a href="Ast.Parser.Utils.html#lexeme"><span class="hs-identifier hs-var">PU.lexeme</span></a></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) Bool
+</span><a href="Ast.Parser.Utils.html#parseBool"><span class="hs-identifier hs-var">PU.parseBool</span></a></span><span>
+</span><span id="line-28"></span><span>  </span><span id="local-6989586621679139911"><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679139911"><span class="hs-identifier hs-var">alignStack</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">PU.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;align_stack -&gt;&quot;</span></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) Bool
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) Bool
+forall a b.
+ParsecT ParseErrorCustom String (StateT ParserState IO) a
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f a -&gt; f b -&gt; f b
+</span><span class="hs-operator hs-var">*&gt;</span></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) Bool
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) Bool
+forall a. Parser a -&gt; Parser a
+</span><a href="Ast.Parser.Utils.html#lexeme"><span class="hs-identifier hs-var">PU.lexeme</span></a></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) Bool
+</span><a href="Ast.Parser.Utils.html#parseBool"><span class="hs-identifier hs-var">PU.parseBool</span></a></span><span>
+</span><span id="line-29"></span><span>  </span><span id="local-6989586621679139912"><span class="annot"><span class="annottext">AsmDialect
+</span><a href="#local-6989586621679139912"><span class="hs-identifier hs-var">dialect</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">PU.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;dialect -&gt;&quot;</span></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) String
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) AsmDialect
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) AsmDialect
+forall a b.
+ParsecT ParseErrorCustom String (StateT ParserState IO) a
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f a -&gt; f b -&gt; f b
+</span><span class="hs-operator hs-var">*&gt;</span></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) AsmDialect
+</span><a href="Ast.Parser.Asm.html#parseAsmDialect"><span class="hs-identifier hs-var">parseAsmDialect</span></a></span><span>
+</span><span id="line-30"></span><span>  </span><span class="annot"><span class="annottext">AsmExpr -&gt; Parser AsmExpr
+forall a.
+a -&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">(AsmExpr -&gt; Parser AsmExpr) -&gt; AsmExpr -&gt; Parser AsmExpr
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String
+-&gt; AsmConstraint
+-&gt; [Expr]
+-&gt; [Type]
+-&gt; Type
+-&gt; Bool
+-&gt; Bool
+-&gt; AsmDialect
+-&gt; AsmExpr
+</span><a href="Ast.Types.html#AsmExpr"><span class="hs-identifier hs-var">AT.AsmExpr</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679139898"><span class="hs-identifier hs-var">code</span></a></span><span> </span><span class="annot"><span class="annottext">AsmConstraint
+</span><a href="#local-6989586621679139901"><span class="hs-identifier hs-var">constraints</span></a></span><span> </span><span class="annot"><span class="annottext">[Expr]
+</span><a href="#local-6989586621679139903"><span class="hs-identifier hs-var">args</span></a></span><span> </span><span class="annot"><span class="annottext">[Type]
+</span><a href="#local-6989586621679139905"><span class="hs-identifier hs-var">parameters</span></a></span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679139908"><span class="hs-identifier hs-var">returnType</span></a></span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679139909"><span class="hs-identifier hs-var">sideEffects</span></a></span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679139911"><span class="hs-identifier hs-var">alignStack</span></a></span><span> </span><span class="annot"><span class="annottext">AsmDialect
+</span><a href="#local-6989586621679139912"><span class="hs-identifier hs-var">dialect</span></a></span><span>
+</span><span id="line-31"></span><span>
+</span><span id="line-32"></span><span class="hs-comment">-- | Parses an assembly constraint string, which may include</span><span>
+</span><span id="line-33"></span><span class="hs-comment">-- an optional output constraint and zero or more input constraints.</span><span>
+</span><span id="line-34"></span><span class="hs-comment">-- Returns an `AT.AsmConstraint` containing an output constraint (if present)</span><span>
+</span><span id="line-35"></span><span class="hs-comment">-- and a list of input constraints.</span><span>
+</span><span id="line-36"></span><span class="annot"><a href="Ast.Parser.Asm.html#parseAsmConstraint"><span class="hs-identifier hs-type">parseAsmConstraint</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">PU.Parser</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#AsmConstraint"><span class="hs-identifier hs-type">AT.AsmConstraint</span></a></span><span>
+</span><span id="line-37"></span><span id="parseAsmConstraint"><span class="annot"><span class="annottext">parseAsmConstraint :: ParsecT
+  ParseErrorCustom String (StateT ParserState IO) AsmConstraint
+</span><a href="Ast.Parser.Asm.html#parseAsmConstraint"><span class="hs-identifier hs-var hs-var">parseAsmConstraint</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) Char
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) Char
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) AsmConstraint
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) AsmConstraint
+forall (m :: * -&gt; *) open close a.
+Applicative m =&gt;
+m open -&gt; m close -&gt; m a -&gt; m a
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Applicative.Combinators.html#between"><span class="hs-identifier hs-var">M.between</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Token String
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) (Token String)
+forall e s (m :: * -&gt; *).
+(MonadParsec e s m, Token s ~ Char) =&gt;
+Token s -&gt; m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.html#char"><span class="hs-identifier hs-var">MC.char</span></a></span><span> </span><span class="annot"><span class="annottext">Char
+Token String
+</span><span class="hs-char">'&quot;'</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Token String
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) (Token String)
+forall e s (m :: * -&gt; *).
+(MonadParsec e s m, Token s ~ Char) =&gt;
+Token s -&gt; m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.html#char"><span class="hs-identifier hs-var">MC.char</span></a></span><span> </span><span class="annot"><span class="annottext">Char
+Token String
+</span><span class="hs-char">'&quot;'</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(ParsecT
+   ParseErrorCustom String (StateT ParserState IO) AsmConstraint
+ -&gt; ParsecT
+      ParseErrorCustom String (StateT ParserState IO) AsmConstraint)
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) AsmConstraint
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) AsmConstraint
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-38"></span><span>  </span><span id="local-6989586621679139916"><span class="annot"><span class="annottext">Maybe String
+</span><a href="#local-6989586621679139916"><span class="hs-identifier hs-var">output</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) String
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) (Maybe String)
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f (Maybe a)
+</span><span class="hs-identifier hs-var">M.optional</span></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) String
+</span><a href="Ast.Parser.Asm.html#parseConstraintOutput"><span class="hs-identifier hs-var">parseConstraintOutput</span></a></span><span>
+</span><span id="line-39"></span><span>  </span><span id="local-6989586621679139919"><span class="annot"><span class="annottext">Maybe [String]
+</span><a href="#local-6989586621679139919"><span class="hs-identifier hs-var">inputs</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) [String]
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) (Maybe [String])
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f (Maybe a)
+</span><span class="hs-identifier hs-var">M.optional</span></span><span> </span><span class="annot"><span class="annottext">(ParsecT ParseErrorCustom String (StateT ParserState IO) [String]
+ -&gt; ParsecT
+      ParseErrorCustom String (StateT ParserState IO) (Maybe [String]))
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) [String]
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) (Maybe [String])
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">ParsecT
+  ParseErrorCustom String (StateT ParserState IO) (Tokens String)
+</span><a href="#local-6989586621679139920"><span class="hs-identifier hs-var">sep</span></a></span><span> </span><span class="annot"><span class="annottext">ParsecT
+  ParseErrorCustom String (StateT ParserState IO) (Tokens String)
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) [String]
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) [String]
+forall a b.
+ParsecT ParseErrorCustom String (StateT ParserState IO) a
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f a -&gt; f b -&gt; f b
+</span><span class="hs-operator hs-var">*&gt;</span></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) String
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) (Tokens String)
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) [String]
+forall (m :: * -&gt; *) a sep. MonadPlus m =&gt; m a -&gt; m sep -&gt; m [a]
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Monad.Combinators.html#sepBy"><span class="hs-identifier hs-var">M.sepBy</span></a></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) String
+</span><a href="Ast.Parser.Asm.html#parseConstraintInput"><span class="hs-identifier hs-var">parseConstraintInput</span></a></span><span> </span><span class="annot"><span class="annottext">ParsecT
+  ParseErrorCustom String (StateT ParserState IO) (Tokens String)
+</span><a href="#local-6989586621679139920"><span class="hs-identifier hs-var">sep</span></a></span><span>
+</span><span id="line-40"></span><span>  </span><span class="annot"><span class="annottext">AsmConstraint
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) AsmConstraint
+forall a.
+a -&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">(AsmConstraint
+ -&gt; ParsecT
+      ParseErrorCustom String (StateT ParserState IO) AsmConstraint)
+-&gt; AsmConstraint
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) AsmConstraint
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; [String] -&gt; AsmConstraint
+</span><a href="Ast.Types.html#AsmConstraint"><span class="hs-identifier hs-var">AT.AsmConstraint</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Maybe String -&gt; String
+forall a. a -&gt; Maybe a -&gt; a
+</span><span class="hs-identifier hs-var">DM.fromMaybe</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;&quot;</span></span><span> </span><span class="annot"><span class="annottext">Maybe String
+</span><a href="#local-6989586621679139916"><span class="hs-identifier hs-var">output</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">([String] -&gt; AsmConstraint) -&gt; [String] -&gt; AsmConstraint
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">[String] -&gt; Maybe [String] -&gt; [String]
+forall a. a -&gt; Maybe a -&gt; a
+</span><span class="hs-identifier hs-var">DM.fromMaybe</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">Maybe [String]
+</span><a href="#local-6989586621679139919"><span class="hs-identifier hs-var">inputs</span></a></span><span>
+</span><span id="line-41"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-42"></span><span>    </span><span id="local-6989586621679139920"><span class="annot"><span class="annottext">sep :: ParsecT
+  ParseErrorCustom String (StateT ParserState IO) (Tokens String)
+</span><a href="#local-6989586621679139920"><span class="hs-identifier hs-var hs-var">sep</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Tokens String
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) (Tokens String)
+forall e s (m :: * -&gt; *).
+MonadParsec e s m =&gt;
+Tokens s -&gt; m (Tokens s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Common.html#string"><span class="hs-identifier hs-var">MC.string</span></a></span><span> </span><span class="annot"><span class="annottext">String
+Tokens String
+</span><span class="hs-string">&quot;,&quot;</span></span><span>
+</span><span id="line-43"></span><span>
+</span><span id="line-44"></span><span class="hs-comment">-- | Parses a single assembly input constraint (`&quot;r&quot;` or `&quot;m&quot;`).</span><span>
+</span><span id="line-45"></span><span class="hs-comment">-- Returns the parsed `String` representing the constraint.</span><span>
+</span><span id="line-46"></span><span class="annot"><a href="Ast.Parser.Asm.html#parseConstraintInput"><span class="hs-identifier hs-type">parseConstraintInput</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">PU.Parser</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-47"></span><span id="parseConstraintInput"><span class="annot"><span class="annottext">parseConstraintInput :: ParsecT ParseErrorCustom String (StateT ParserState IO) String
+</span><a href="Ast.Parser.Asm.html#parseConstraintInput"><span class="hs-identifier hs-var hs-var">parseConstraintInput</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[ParsecT ParseErrorCustom String (StateT ParserState IO) String]
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+forall (f :: * -&gt; *) (m :: * -&gt; *) a.
+(Foldable f, Alternative m) =&gt;
+f (m a) -&gt; m a
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Applicative.Combinators.html#choice"><span class="hs-identifier hs-var">M.choice</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Tokens String
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) (Tokens String)
+forall e s (m :: * -&gt; *).
+MonadParsec e s m =&gt;
+Tokens s -&gt; m (Tokens s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Common.html#string"><span class="hs-identifier hs-var">MC.string</span></a></span><span> </span><span class="annot"><span class="annottext">String
+Tokens String
+</span><span class="hs-string">&quot;r&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Tokens String
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) (Tokens String)
+forall e s (m :: * -&gt; *).
+MonadParsec e s m =&gt;
+Tokens s -&gt; m (Tokens s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Common.html#string"><span class="hs-identifier hs-var">MC.string</span></a></span><span> </span><span class="annot"><span class="annottext">String
+Tokens String
+</span><span class="hs-string">&quot;m&quot;</span></span><span class="hs-special">]</span><span>
+</span><span id="line-48"></span><span>
+</span><span id="line-49"></span><span class="hs-comment">-- | Parses a single assembly output constraint, which is prefixed by `'='`</span><span>
+</span><span id="line-50"></span><span class="hs-comment">-- and then expects either `&quot;r&quot;` or `&quot;m&quot;`.</span><span>
+</span><span id="line-51"></span><span class="hs-comment">-- Returns the parsed `String` representing the constraint.</span><span>
+</span><span id="line-52"></span><span class="annot"><a href="Ast.Parser.Asm.html#parseConstraintOutput"><span class="hs-identifier hs-type">parseConstraintOutput</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">PU.Parser</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-53"></span><span id="parseConstraintOutput"><span class="annot"><span class="annottext">parseConstraintOutput :: ParsecT ParseErrorCustom String (StateT ParserState IO) String
+</span><a href="Ast.Parser.Asm.html#parseConstraintOutput"><span class="hs-identifier hs-var hs-var">parseConstraintOutput</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Token String
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) (Token String)
+forall e s (m :: * -&gt; *).
+(MonadParsec e s m, Token s ~ Char) =&gt;
+Token s -&gt; m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.html#char"><span class="hs-identifier hs-var">MC.char</span></a></span><span> </span><span class="annot"><span class="annottext">Char
+Token String
+</span><span class="hs-char">'='</span></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) Char
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+forall a b.
+ParsecT ParseErrorCustom String (StateT ParserState IO) a
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f a -&gt; f b -&gt; f b
+</span><span class="hs-operator hs-var">*&gt;</span></span><span> </span><span class="annot"><span class="annottext">[ParsecT ParseErrorCustom String (StateT ParserState IO) String]
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+forall (f :: * -&gt; *) (m :: * -&gt; *) a.
+(Foldable f, Alternative m) =&gt;
+f (m a) -&gt; m a
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Applicative.Combinators.html#choice"><span class="hs-identifier hs-var">M.choice</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Tokens String
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) (Tokens String)
+forall e s (m :: * -&gt; *).
+MonadParsec e s m =&gt;
+Tokens s -&gt; m (Tokens s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Common.html#string"><span class="hs-identifier hs-var">MC.string</span></a></span><span> </span><span class="annot"><span class="annottext">String
+Tokens String
+</span><span class="hs-string">&quot;r&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Tokens String
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) (Tokens String)
+forall e s (m :: * -&gt; *).
+MonadParsec e s m =&gt;
+Tokens s -&gt; m (Tokens s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Common.html#string"><span class="hs-identifier hs-var">MC.string</span></a></span><span> </span><span class="annot"><span class="annottext">String
+Tokens String
+</span><span class="hs-string">&quot;m&quot;</span></span><span class="hs-special">]</span><span>
+</span><span id="line-54"></span><span>
+</span><span id="line-55"></span><span class="hs-comment">-- | Parses the assembly dialect, which can be either `Intel` or `ATT`.</span><span>
+</span><span id="line-56"></span><span class="hs-comment">-- Returns an `AT.AsmDialect`.</span><span>
+</span><span id="line-57"></span><span class="annot"><a href="Ast.Parser.Asm.html#parseAsmDialect"><span class="hs-identifier hs-type">parseAsmDialect</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">PU.Parser</span></a></span><span> </span><span class="annot"><a href="Ast.Types.html#AsmDialect"><span class="hs-identifier hs-type">AT.AsmDialect</span></a></span><span>
+</span><span id="line-58"></span><span id="parseAsmDialect"><span class="annot"><span class="annottext">parseAsmDialect :: ParsecT ParseErrorCustom String (StateT ParserState IO) AsmDialect
+</span><a href="Ast.Parser.Asm.html#parseAsmDialect"><span class="hs-identifier hs-var hs-var">parseAsmDialect</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[ParsecT
+   ParseErrorCustom String (StateT ParserState IO) AsmDialect]
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) AsmDialect
+forall (f :: * -&gt; *) (m :: * -&gt; *) a.
+(Foldable f, Alternative m) =&gt;
+f (m a) -&gt; m a
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Applicative.Combinators.html#choice"><span class="hs-identifier hs-var">M.choice</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">AsmDialect
+</span><a href="Ast.Types.html#Intel"><span class="hs-identifier hs-var">AT.Intel</span></a></span><span> </span><span class="annot"><span class="annottext">AsmDialect
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) AsmDialect
+forall a b.
+a
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) a
+forall (f :: * -&gt; *) a b. Functor f =&gt; a -&gt; f b -&gt; f a
+</span><span class="hs-operator hs-var">&lt;$</span></span><span> </span><span class="annot"><span class="annottext">String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">PU.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Intel&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">AsmDialect
+</span><a href="Ast.Types.html#ATT"><span class="hs-identifier hs-var">AT.ATT</span></a></span><span> </span><span class="annot"><span class="annottext">AsmDialect
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) AsmDialect
+forall a b.
+a
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) b
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) a
+forall (f :: * -&gt; *) a b. Functor f =&gt; a -&gt; f b -&gt; f a
+</span><span class="hs-operator hs-var">&lt;$</span></span><span> </span><span class="annot"><span class="annottext">String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+</span><a href="Ast.Parser.Utils.html#symbol"><span class="hs-identifier hs-var">PU.symbol</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;ATT&quot;</span></span><span class="hs-special">]</span><span>
+</span><span id="line-59"></span><span>
+</span><span id="line-60"></span><span class="hs-comment">-- | Parses a string enclosed in double quotes (`&quot;...&quot;`).</span><span>
+</span><span id="line-61"></span><span class="hs-comment">-- Returns the parsed `String`.</span><span>
+</span><span id="line-62"></span><span class="annot"><a href="Ast.Parser.Asm.html#anyString"><span class="hs-identifier hs-type">anyString</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Ast.Parser.Utils.html#Parser"><span class="hs-identifier hs-type">PU.Parser</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-63"></span><span id="anyString"><span class="annot"><span class="annottext">anyString :: ParsecT ParseErrorCustom String (StateT ParserState IO) String
+</span><a href="Ast.Parser.Asm.html#anyString"><span class="hs-identifier hs-var hs-var">anyString</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) Char
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) Char
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+forall (m :: * -&gt; *) open close a.
+Applicative m =&gt;
+m open -&gt; m close -&gt; m a -&gt; m a
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Applicative.Combinators.html#between"><span class="hs-identifier hs-var">M.between</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Token String
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) (Token String)
+forall e s (m :: * -&gt; *).
+(MonadParsec e s m, Token s ~ Char) =&gt;
+Token s -&gt; m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.html#char"><span class="hs-identifier hs-var">MC.char</span></a></span><span> </span><span class="annot"><span class="annottext">Char
+Token String
+</span><span class="hs-char">'\&quot;'</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Token String
+-&gt; ParsecT
+     ParseErrorCustom String (StateT ParserState IO) (Token String)
+forall e s (m :: * -&gt; *).
+(MonadParsec e s m, Token s ~ Char) =&gt;
+Token s -&gt; m (Token s)
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/megaparsec-9.7.0-d8a0c012ddf662693dbb6a450221a42e2964b086355e8769750af5ccc130289d/share/doc/html/src/Text.Megaparsec.Char.html#char"><span class="hs-identifier hs-var">MC.char</span></a></span><span> </span><span class="annot"><span class="annottext">Char
+Token String
+</span><span class="hs-char">'\&quot;'</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(ParsecT ParseErrorCustom String (StateT ParserState IO) String
+ -&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String)
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) Char
+-&gt; ParsecT ParseErrorCustom String (StateT ParserState IO) String
+forall (m :: * -&gt; *) a. MonadPlus m =&gt; m a -&gt; m [a]
+</span><a href="file:///home/runner/.cabal/store/ghc-9.4.8/parser-combinators-1.3.0-feda1c3b6159dd36c6ce34750cc148945f7b0112be9cb2b4f4804b1854519f15/share/doc/html/src/Control.Monad.Combinators.html#many"><span class="hs-identifier hs-var">M.many</span></a></span><span> </span><span class="annot"><span class="annottext">ParsecT ParseErrorCustom String (StateT ParserState IO) Char
+</span><a href="Ast.Parser.Utils.html#parseStringChar"><span class="hs-identifier hs-var">PU.parseStringChar</span></a></span><span>
+</span><span id="line-64"></span></pre></body></html>
