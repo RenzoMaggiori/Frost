@@ -4,7 +4,7 @@ version: 1.0.0.0
 synopsis: Generic Language and Data Operand Syntax
 license: MIT
 license-file: LICENSE
-author: Javier R
+author: Renzo M
 maintainer: javier.rios-urbano@epitech.eu
 category: Compilers
 build-type: Simple

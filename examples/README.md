@@ -4,7 +4,7 @@ This directory contains examples of how to use the `frost` programming language.
 In order to run the examples, you must have the `frost` compiler installed on
 your system. You can find instructions on how to install the `frost` compiler in
 the
-[Getting Started](https://frost-lang.gitbook.io/frost/user-manual/getting-started)
+[Getting Started](https://renzo.gitbook.io/frost/user-manual/getting-started)
 section of the user manual.
 
 Each file in this directory is a standalone example that demonstrates a specific

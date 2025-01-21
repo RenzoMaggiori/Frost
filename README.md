@@ -51,7 +51,7 @@ To begin with Frost, ensure that [Haskell](https://www.haskell.org/) and
 [LLVM 19](https://llvm.org/) or later are installed on your system. You can
 download the latest release from the [releases page](README.md) or opt to build
 Frost from source. For comprehensive installation guidance, please consult the
-[Documentation](https://frost-lang.gitbook.io/frost/user-manual/getting-started).
+[Documentation](https://renzo.gitbook.io/frost/user-manual/getting-started).
 
 ## License
 

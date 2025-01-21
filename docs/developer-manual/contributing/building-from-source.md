@@ -21,7 +21,7 @@ Before you begin, ensure you have the following tools installed:
    Clone the Frost repository and initialize its submodules:
 
    ```bash
-   git clone --recursive https://github.com/Jabolol/glados.git
+   git clone --recursive https://github.com/RenzoMaggiori/Frost.git
    cd frost
    ```
 
