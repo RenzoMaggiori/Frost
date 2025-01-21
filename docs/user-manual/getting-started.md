@@ -9,7 +9,7 @@ journey with Frost programming. Currently available for `Linux` (x86_64) and
 
 **Download and Install**
 
-1. Navigate to the [releases page](https://github.com/Jabolol/glados/releases/)
+1. Navigate to the [releases page](https://github.com/RenzoMaggiori/Frost/releases/)
 2. Download the latest version for your operating system
 3. Extract the archive to your preferred location
 4. Add the `frostc` binary to your system's PATH
@@ -53,7 +53,7 @@ ghcup set ghc 9.4.8
 1. Clone the repository with submodules:
 
 ```bash
-git clone --recursive https://github.com/Jabolol/frost
+git clone --recursive https://github.com/RenzoMaggiori/Frost.git
 cd frost
 ```
 

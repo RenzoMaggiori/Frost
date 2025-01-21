@@ -5,14 +5,14 @@ synopsis: Generic Language and Data Operand Syntax
 license: MIT
 license-file: LICENSE
 author: Renzo M
-maintainer: javier.rios-urbano@epitech.eu
+maintainer: renzo.maggiori@epitech.eu
 category: Compilers
 build-type: Simple
 extra-doc-files: README.md
 
 source-repository head
   type: git
-  location: git@github.com:EpitechPromo2027/B-FUN-500-BAR-5-2-glados-oriol.linan.git
+  location: git@github.com:RenzoMaggiori/Frost.git
 
 common warnings
   ghc-options:

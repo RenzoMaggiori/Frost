@@ -68,7 +68,7 @@ Before you begin, ensure you have the following tools installed:
 
 We maintain Haddock documentation for the Frost compiler. It is currently hosted
 on GitHub Pages and can be accessed at
-[https://jabolol.github.io/glados/](https://jabolol.github.io/glados/).
+[https://renzomaggiori.github.io/Frost/](https://renzomaggiori.github.io/Frost/).
 
 To generate the documentation locally, run the following command:
 
